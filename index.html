@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Web Terminal</title>
+    <style>
+        body {
+            background: black;
+            color: white;
+            font-family: monospace;
+            padding: 1rem;
+        }
+
+        #terminal {
+            white-space: pre-wrap;
+            line-height: 1.2;
+            word-break: break-all;
+        }
+
+        #inputRow {
+            font-family: monospace;
+            color: white;
+            background: black;
+            word-break: break-all;
+            line-height: 1.2;
+        }
+
+        #workingDir {
+            display: inline;
+            white-space: nowrap;
+            /* keeps the prompt from ever breaking */
+        }
+
+        #input {
+            display: inline;
+            background: black;
+            color: white;
+            font-family: monospace;
+            outline: none;
+            white-space: pre-wrap;
+            word-break: break-all;
+            caret-color: white;
+            min-width: 1ch;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="terminal"></div>
+    <div id="inputRow">
+        <span id="workingDir">nelsonkids@Nelsons-Mac-mini ~ $</span>
+        <span id="input" contenteditable="true" spellcheck="false"></span>
+    </div>
+    <script type="module" src="./app.ts"></script>
+</body>
+
+</html>
