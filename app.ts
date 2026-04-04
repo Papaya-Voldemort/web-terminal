@@ -7,8 +7,8 @@ if (!terminal || !input || !workingDir) {
 }
 
 // --- Config ---
-const USER = "nelsonkids";
-const HOST = "Nelsons-Mac-mini";
+const USER = "hacker";
+const HOST = "nest";
 let currentDir = "~"; // "~" = filesystem root; otherwise a slash-joined path like "root/downloads"
 
 function updatePrompt() {
