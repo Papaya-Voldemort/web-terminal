@@ -1,6 +1,6 @@
 {
   "name": "web-terminal",
-  "module": "index.ts",
+  "main": "server.ts",
   "type": "module",
   "private": true,
   "scripts": {
