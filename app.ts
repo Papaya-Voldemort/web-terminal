@@ -11,6 +11,9 @@ const USER = "hacker";
 const HOST = "nest";
 let currentDir = "~"; // "~" = filesystem root; otherwise a slash-joined path like "root/downloads"
 
+let history: string[] = [];
+let historyIndex = -1; // -1 = not navigating
+
 function updatePrompt() {
     workingDir.textContent = `${USER}@${HOST} ${currentDir} $ `;
 }
@@ -43,10 +46,10 @@ function getFile(path: string): FSFile | null {
     const fsPath = (!path || path === "~") ? "root" : path;
     const parts = fsPath.split("/").filter(Boolean);
     const fileName = parts.pop();
-    
+
     const parentDir = parts.length ? getDirectory(parts.join("/")) : fileSystem;
     if (!parentDir || !fileName) return null;
-    
+
     return (parentDir.find(n => n.name === fileName && n.type === "file") as FSFile) ?? null;
 }
 
@@ -241,7 +244,7 @@ function _touch(name: string) {
 
     const resolved = resolvePath(name);
     const fsPath = resolved === "~" ? "root" : resolved;
-    
+
     const parts = (resolved === "~" ? "root" : resolved).split("/");
     parts.pop();
     const parentPath = parts.join("/");
@@ -275,6 +278,190 @@ function _rm(path: string) {
     return msg;
 }
 
+function _cat(path: string) {
+    if (!path) { print("cat: missing operand"); return "cat: missing operand"; }
+
+    const resolved = resolvePath(path);
+    const fsPath = resolved === "~" ? "root" : resolved;
+    const file = getFile(fsPath);
+
+    if (file === null) {
+        const msg = `cat: no such file: ${path}`;
+        print(msg); return msg;
+    }
+
+    const msg = file.content;
+    print(msg);
+    return msg;
+}
+
+function _ls(path: string) {
+    const resolved = path ? resolvePath(path) : currentDir;
+    const fsPath = resolved === "~" ? "root" : resolved;
+    const target = getDirectory(fsPath);
+
+    if (target === null) {
+        const msg = `ls: no such directory: ${path}`;
+        print(msg); return msg;
+    }
+
+    const msg = target.map(n => n.name).join("\n") || "(empty)";
+    print(msg);
+    return (msg);
+}
+
+function _clear() {
+    buffer = [];
+    const msg = "Cleared the terminal!";
+    print(msg);
+    return (msg);
+}
+
+function _mv(origin: string, target: string) {
+    if (!origin || !target) { print("mv: missing operand"); return "mv: missing operand"; }
+
+    const originResolved = resolvePath(origin);
+    const originFsPath = originResolved === "~" ? "root" : originResolved;
+    const originFile = getFile(originFsPath);
+
+    if (originFile === null) {
+        const msg = `mv: no such file: ${origin}`;
+        print(msg); return msg;
+    }
+
+    const targetResolved = resolvePath(target);
+    const targetFsPath = targetResolved === "~" ? "root" : targetResolved;
+    const targetFile = getFile(targetFsPath);
+
+    if (targetFile !== null) {
+        const msg = `mv: ${target} already exists`;
+        print(msg); return msg;
+    }
+
+    makeFile(targetFsPath, originFile.content);
+    removeFile(origin);
+    const msg = `Moved ${origin} to ${target}`;
+    print(msg);
+    return msg;
+}
+
+function _cp(origin: string, target: string) {
+    if (!origin || !target) { print("cp: missing operand"); return "cp: missing operand"; }
+
+    const originResolved = resolvePath(origin);
+    const originFsPath = originResolved === "~" ? "root" : originResolved;
+    const originFile = getFile(originFsPath);
+
+    if (originFile === null) {
+        const msg = `cp: no such file: ${origin}`;
+        print(msg); return msg;
+    }
+
+    const targetResolved = resolvePath(target);
+    const targetFsPath = targetResolved === "~" ? "root" : targetResolved;
+    const targetFile = getFile(targetFsPath);
+
+    if (targetFile !== null) {
+        const msg = `cp: ${target} already exists`;
+        print(msg); return msg;
+    }
+
+    makeFile(targetFsPath, originFile.content);
+    const msg = `Copied ${origin} to ${target}`;
+    print(msg);
+    return msg;
+}
+
+// Nano/Write impelentation starts here
+
+// --- New filesystem helper ---
+function writeFile(path: string, content: string): boolean {
+    const parts = path.split("/").filter(Boolean);
+    const fileName = parts.pop()!;
+    const parentDir = parts.length ? getDirectory(parts.join("/")) : fileSystem;
+    if (!parentDir) return false;
+
+    const file = parentDir.find(n => n.name === fileName && n.type === "file") as FSFile | undefined;
+    if (!file) return false;
+
+    file.content = content;
+    updateLocalStorage();
+    return true;
+}
+
+// --- Editor ---
+function openEditor(fsPath: string, displayPath: string, initialContent: string) {
+    const container = terminal.parentElement!;
+    container.classList.add("hideMe");
+
+    const editor = document.createElement("div");
+    editor.id = "writeEditor";
+    editor.innerHTML = `
+        <div id="writeHeader">write — ${displayPath} &nbsp;|&nbsp; ^S Save &nbsp; ^X Save &amp; Exit &nbsp; ^Q Quit without saving</div>
+        <textarea id="writeArea" spellcheck="false"></textarea>
+        <div id="writeFooter">^S Save &nbsp;&nbsp; ^X Save &amp; Exit &nbsp;&nbsp; ^Q Quit</div>
+    `;
+    document.body.appendChild(editor);
+
+    const textarea = editor.querySelector<HTMLTextAreaElement>("#writeArea")!;
+    textarea.value = initialContent; // set via .value to avoid HTML-encoding issues
+    textarea.focus();
+
+    // Move caret to end
+    textarea.selectionStart = textarea.selectionEnd = initialContent.length;
+
+    function showSavedIndicator() {
+        const header = editor.querySelector<HTMLDivElement>("#writeHeader")!;
+        const original = header.textContent;
+        header.textContent = "✓ Saved!";
+        setTimeout(() => { header.innerHTML = `write — ${displayPath} &nbsp;|&nbsp; ^S Save &nbsp; ^X Save &amp; Exit &nbsp; ^Q Quit without saving`; }, 1000);
+    }
+
+    function save() {
+        writeFile(fsPath, textarea.value);
+        showSavedIndicator();
+    }
+
+    function exit() {
+        editor.remove();
+        container.classList.remove("hideMe");
+        input.focus();
+    }
+
+    textarea.addEventListener("keydown", (e) => {
+        // Tab — insert literal tab instead of shifting focus
+        if (e.key === "Tab") {
+            e.preventDefault();
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            textarea.value = textarea.value.substring(0, start) + "\t" + textarea.value.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + 1;
+            return;
+        }
+
+        if (e.ctrlKey && e.key === "s") { e.preventDefault(); save(); }
+        if (e.ctrlKey && e.key === "x") { e.preventDefault(); save(); exit(); }
+        if (e.ctrlKey && e.key === "q") { e.preventDefault(); exit(); } // quit without saving
+    });
+}
+
+function _write(path: string): string {
+    if (!path) { print("write: missing operand"); return "write: missing operand"; }
+
+    const resolved = resolvePath(path);
+    const fsPath = resolved === "~" ? "root" : resolved;
+    const file = getFile(fsPath);
+
+    if (file === null) {
+        const msg = `write: no such file: ${path} — use touch to create it first`;
+        print(msg); return msg;
+    }
+
+    openEditor(fsPath, path, file.content);
+    return "";
+};
+
+// Write implentation ends here
 
 const commandDescriptions: Record<string, string> = {
     hello: "Prints Hello World!",
@@ -286,7 +473,13 @@ const commandDescriptions: Record<string, string> = {
     mkdir: "Make a new directory :)",
     rmdir: "Remove a directory :0",
     touch: "Make a new file!",
-    rm: "Delete a file 0:<"
+    rm: "Delete a file 0:<",
+    cat: "Read a files content!",
+    ls: "List all items in a directory",
+    clear: "Clear the terminal!",
+    mv: "Move a file",
+    cp: "Copy a file",
+    write: "Edit an existing file (^S save, ^X save & exit, ^Q quit)",
 };
 
 type Command = (arg?: string, sudo?: boolean) => string;
@@ -302,17 +495,43 @@ const commands: Partial<Record<string, Command>> = {
     rmdir: (arg = "", sudo = false) => _rmdir(arg, sudo),
     touch: (arg = "") => _touch(arg),
     rm: (arg = "") => _rm(arg),
+    cat: (arg = "") => _cat(arg),
+    ls: (arg = "") => _ls(arg),
+    clear: () => _clear(),
+    mv: (arg = "") => {
+        const [origin, target] = arg.split(" ");
+        return _mv(origin, target);
+    },
+    cp: (arg = "") => {
+        const [origin, target] = arg.split(" ");
+        return _cp(origin, target);
+    },
+    write: (arg = "") => _write(arg),
 };
 
 // --- Input handling ---
 input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") {
+        e.preventDefault();
+        historyIndex = Math.max(0, historyIndex === -1 ? history.length - 1 : historyIndex - 1);
+        input.innerText = history[historyIndex] ?? "";
+    } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        historyIndex = Math.min(history.length - 1, historyIndex + 1);
+        input.innerText = historyIndex === history.length - 1 ? "" : history[historyIndex] ?? "";
+    }
     if (e.key !== "Enter") return;
     e.preventDefault();
 
     const value = input.innerText.trim();
+
+    if (!value) return;
+    history.push(value);
+    historyIndex = -1;
+
     if (!value) return;
 
-    print(`> ${value}`);
+    print(`${USER}@${HOST} ${currentDir} $ ${value}`);
 
     const parts = value.split(" ");
 
@@ -337,6 +556,7 @@ input.addEventListener("keydown", (e) => {
 
 // Keep input focused and caret at end on any click
 document.addEventListener("click", () => {
+    if (document.getElementById("writeEditor")) return;
     input.focus();
     const range = document.createRange();
     const sel = window.getSelection()!;

@@ -43,14 +43,52 @@
             caret-color: white;
             min-width: 1ch;
         }
+
+        .hideMe {
+            display: none;
+        }
+
+        #writeEditor {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: monospace;
+            z-index: 999;
+        }
+
+        #writeHeader,
+        #writeFooter {
+            background: #333;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 0.85rem;
+        }
+
+        #writeArea {
+            flex: 1;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: none;
+            outline: none;
+            padding: 8px;
+            font-family: monospace;
+            font-size: 1rem;
+            resize: none;
+            tab-size: 4;
+        }
     </style>
 </head>
 
 <body>
-    <div id="terminal"></div>
-    <div id="inputRow">
-        <span id="workingDir">nelsonkids@Nelsons-Mac-mini ~ $</span>
-        <span id="input" contenteditable="true" spellcheck="false"></span>
+    <div id="container">
+        <div id="terminal"></div>
+        <div id="inputRow">
+            <span id="workingDir">nelsonkids@Nelsons-Mac-mini ~ $</span>
+            <span id="input" contenteditable="true" spellcheck="false"></span>
+        </div>
     </div>
     <script type="module" src="./app.ts"></script>
 </body>
