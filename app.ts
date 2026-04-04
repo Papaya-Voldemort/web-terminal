@@ -10,9 +10,14 @@ if (!terminal || !input || !workingDir) {
 }
 
 // --- Config ---
-const USER = "hacker";
+let USER = "hacker";
+let USER_EMAIL = "";
 const HOST = "nest";
 let currentDir = "~"; // "~" = filesystem root; otherwise a slash-joined path like "root/downloads"
+
+function formatUserName(name: string) {
+    return name.replace(/\s+/g, "-");
+}
 
 let history: string[] = [];
 let historyIndex = -1; // -1 = not navigating
@@ -178,10 +183,10 @@ function seedFilesystem() {
     if (fileSystem.length > 0) return;
     // Build the tree directly without triggering updateLocalStorage
     const parts = (path: string) => path.split("/").filter(Boolean);
-    
+
     const dirs = [
         "root/downloads/music",
-        "root/downloads/videos", 
+        "root/downloads/videos",
         "root/downloads/games",
         "root/pictures",
     ];
@@ -223,6 +228,9 @@ function seedFilesystem() {
 async function loadFilesystem() {
     const user = await account.get().catch(() => null);
     if (user) {
+        USER = formatUserName(user.name || user.email || USER);
+        USER_EMAIL = user.email || "";
+        updatePrompt();
         try {
             const doc = await databases.getDocument(DB_ID, COL_ID, user.$id);
             fileSystem = JSON.parse(doc.data);
@@ -252,6 +260,8 @@ async function loadFilesystem() {
 async function loginWithGoogle() {
     const user = await account.get().catch(() => null);
     if (user) {
+        USER = formatUserName(user.name || user.email || USER);
+        USER_EMAIL = user.email || "";
         print("Already logged in. Run 'logout' first.");
         return;
     }
@@ -262,6 +272,8 @@ async function loginWithGoogle() {
         `${window.location.origin}`,
         `${window.location.origin}`
     );
+
+
 }
 
 async function logout() {
@@ -589,6 +601,23 @@ function _write(path: string): string {
 
 // Write implentation ends here
 
+function _who(): string {
+    const output = USER_EMAIL ? `${USER} <${USER_EMAIL}>` : USER;
+    print(output);
+    return output;
+}
+
+function _date(): string {
+    const msg = new Date().toLocaleDateString();
+    print(msg);
+    return(msg);
+}
+
+function _history(): string {
+    print(JSON.stringify(history));
+    return(JSON.stringify(history))
+}
+
 const commandDescriptions: Record<string, string> = {
     hello: "Prints Hello World!",
     help: "Displays all implemented commands and descriptions",
@@ -608,6 +637,9 @@ const commandDescriptions: Record<string, string> = {
     write: "Edit an existing file (^S save, ^X save & exit, ^Q quit)",
     login: "Sign in with Google",
     logout: "Sign out",
+    who: "Outputs the current user",
+    date: "Return the current date",
+    history: "Output command history"
 };
 
 type Command = (arg?: string, sudo?: boolean) => string;
@@ -637,6 +669,9 @@ const commands: Partial<Record<string, Command>> = {
     write: (arg = "") => _write(arg),
     login: () => { loginWithGoogle(); return ""; },
     logout: () => { logout(); return ""; },
+    who: () => _who(),
+    date: () => _date(),
+    history: () => _history(),
 };
 
 // --- Input handling ---
