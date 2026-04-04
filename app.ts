@@ -1,3 +1,6 @@
+import { account, databases, DB_ID, COL_ID, Permission, Role } from "./lib/appwrite";
+import { OAuthProvider } from "appwrite";
+
 const terminal = document.querySelector<HTMLDivElement>("#terminal")!;
 const input = document.querySelector<HTMLInputElement>("#input")!;
 const workingDir = document.querySelector<HTMLSpanElement>("#workingDir")!;
@@ -25,10 +28,35 @@ type FSFile = { name: string; type: "file"; content: string };
 type FSDir = { name: string; type: "dir"; children: FSNode[] };
 type FSNode = FSFile | FSDir;
 
-let fileSystem: FSNode[] = JSON.parse(localStorage.getItem("fileSystem") ?? "[]");
+let fileSystem: FSNode[] = [];
 
-function updateLocalStorage() {
-    localStorage.setItem("fileSystem", JSON.stringify(fileSystem));
+let saveTimeout: ReturnType<typeof setTimeout>;
+
+let docExists = false; // tracks if this user's doc exists in Appwrite
+
+async function updateLocalStorage() {
+    const user = await account.get().catch(() => null);
+    if (user) {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(async () => {
+            if (docExists) {
+                await databases.updateDocument(DB_ID, COL_ID, user.$id, {
+                    data: JSON.stringify(fileSystem),
+                });
+            } else {
+                await databases.createDocument(DB_ID, COL_ID, user.$id, {
+                    data: JSON.stringify(fileSystem),
+                }, [
+                    Permission.read(Role.user(user.$id)),
+                    Permission.update(Role.user(user.$id)),
+                    Permission.delete(Role.user(user.$id)),
+                ]);
+                docExists = true;
+            }
+        }, 500);
+    } else {
+        localStorage.setItem("fileSystem", JSON.stringify(fileSystem));
+    }
 }
 
 // Walks a slash-separated path and returns the children array of the target dir, or null if not found
@@ -141,13 +169,111 @@ function removeFile(path: string) {
     return removeNode(path, "file");
 }
 
-// --- Seed filesystem ---
-makeDirectory("root/downloads/music");
-makeDirectory("root/downloads/videos");
-makeDirectory("root/downloads/games");
-makeDirectory("root/pictures");
-makeFile("root/downloads/music/song.mp3", "audio content here");
-makeFile("root/documents/report.docx", "report content here");
+// Silent version of save used during initial setup — no network calls
+function saveSync() {
+    localStorage.setItem("fileSystem", JSON.stringify(fileSystem));
+}
+
+function seedFilesystem() {
+    if (fileSystem.length > 0) return;
+    // Build the tree directly without triggering updateLocalStorage
+    const parts = (path: string) => path.split("/").filter(Boolean);
+    
+    const dirs = [
+        "root/downloads/music",
+        "root/downloads/videos", 
+        "root/downloads/games",
+        "root/pictures",
+    ];
+    const files = [
+        ["root/downloads/music/song.mp3", "audio content here"],
+        ["root/documents/report.docx", "report content here"],
+    ];
+
+    for (const dir of dirs) {
+        let level = fileSystem;
+        for (const part of parts(dir)) {
+            const existing = level.find(n => n.name === part && n.type === "dir") as FSDir | undefined;
+            if (existing) { level = existing.children; continue; }
+            const newDir: FSDir = { name: part, type: "dir", children: [] };
+            level.push(newDir);
+            level = newDir.children;
+        }
+    }
+    for (const [path, content] of files) {
+        const p = parts(path);
+        const fileName = p.pop()!;
+        let level = fileSystem;
+        for (const part of p) {
+            const existing = level.find(n => n.name === part && n.type === "dir") as FSDir | undefined;
+            if (existing) { level = existing.children; continue; }
+            const newDir: FSDir = { name: part, type: "dir", children: [] };
+            level.push(newDir);
+            level = newDir.children;
+        }
+        if (!level.find(n => n.name === fileName)) {
+            level.push({ name: fileName, type: "file", content });
+        }
+    }
+    // Single save at the end, not once per file/dir
+    saveSync();
+}
+
+// --- Auth & cloud sync ---
+async function loadFilesystem() {
+    const user = await account.get().catch(() => null);
+    if (user) {
+        try {
+            const doc = await databases.getDocument(DB_ID, COL_ID, user.$id);
+            fileSystem = JSON.parse(doc.data);
+            docExists = true;
+        } catch {
+            // New user — transfer local data if any, else seed
+            const local = localStorage.getItem("fileSystem");
+            fileSystem = local ? JSON.parse(local) : [];
+            seedFilesystem();
+            // Create directly, no update attempt
+            await databases.createDocument(DB_ID, COL_ID, user.$id, {
+                data: JSON.stringify(fileSystem),
+            }, [
+                Permission.read(Role.user(user.$id)),
+                Permission.update(Role.user(user.$id)),
+                Permission.delete(Role.user(user.$id)),
+            ]);
+            docExists = true;
+            localStorage.removeItem("fileSystem");
+        }
+    } else {
+        fileSystem = JSON.parse(localStorage.getItem("fileSystem") ?? "[]");
+        seedFilesystem();
+    }
+}
+
+async function loginWithGoogle() {
+    const user = await account.get().catch(() => null);
+    if (user) {
+        print("Already logged in. Run 'logout' first.");
+        return;
+    }
+    const local = localStorage.getItem("fileSystem");
+    if (local) sessionStorage.setItem("pendingTransfer", local);
+    account.createOAuth2Session(
+        OAuthProvider.Google,
+        `${window.location.origin}`,
+        `${window.location.origin}`
+    );
+}
+
+async function logout() {
+    const user = await account.get().catch(() => null);
+    if (!user) {
+        print("Not logged in.");
+        return;
+    }
+    await account.deleteSession("current");
+    localStorage.removeItem("fileSystem");
+    window.location.reload();
+}
 
 // --- Output ---
 let buffer: string[] = [];
@@ -480,6 +606,8 @@ const commandDescriptions: Record<string, string> = {
     mv: "Move a file",
     cp: "Copy a file",
     write: "Edit an existing file (^S save, ^X save & exit, ^Q quit)",
+    login: "Sign in with Google",
+    logout: "Sign out",
 };
 
 type Command = (arg?: string, sudo?: boolean) => string;
@@ -507,6 +635,8 @@ const commands: Partial<Record<string, Command>> = {
         return _cp(origin, target);
     },
     write: (arg = "") => _write(arg),
+    login: () => { loginWithGoogle(); return ""; },
+    logout: () => { logout(); return ""; },
 };
 
 // --- Input handling ---
@@ -566,4 +696,7 @@ document.addEventListener("click", () => {
     sel.addRange(range);
 });
 
-print("Welcome! Type 'help' for commands.");
+(async () => {
+    await loadFilesystem();
+    print("Welcome! Type 'help' for commands.");
+})();

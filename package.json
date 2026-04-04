@@ -14,6 +14,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "appwrite": "^24.1.1",
     "esbuild": "^0.28.0"
   }
 }

@@ -1,5 +1,9 @@
 # web-terminal
 
+
+> Web Terminal Cloud Out Now
+
+
 ## AI Disclaimer
 Most comments and some helper functions were written by an AI tool. No autocomplete was used because it is annoying for me.
 Anything made by AI other than comments is documented in the codebase.
