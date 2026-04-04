@@ -1,8 +1,24 @@
 # web-terminal
 
-## AI Dislaimer
-Most comments and some helper functions were written by AI tool, no Autocomplete was on as its annoying for me
-Anything made by AI other than comments its documented in the codebase
+## AI Disclaimer
+Most comments and some helper functions were written by an AI tool. No autocomplete was used because it is annoying for me.
+Anything made by AI other than comments is documented in the codebase.
+
+## Commands
+
+- `hello` — Prints `Hello World!`
+- `help` — Displays all implemented commands and descriptions
+- `ping` — Prints `Pong!`
+- `echo <text>` — Echoes the provided text back
+- `cd <dir>` — Changes the current working directory (`..`, relative, and `~` supported)
+- `pwd` — Prints the current working directory
+- `mkdir <dir>` — Creates a new directory
+- `rmdir <dir>` — Removes a directory
+- `touch <file>` — Creates a new file
+- `rm <file>` — Removes a file
+
+## Future Plans
+Add every command inside of `COMMANDS_100.md`.
 
 To install dependencies:
 
