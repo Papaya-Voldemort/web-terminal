@@ -285,7 +285,8 @@ const commandDescriptions: Record<string, string> = {
     pwd: "Prints the current working directory!",
     mkdir: "Make a new directory :)",
     rmdir: "Remove a directory :0",
-    touch: "Make a new file!"
+    touch: "Make a new file!",
+    rm: "Delete a file 0:<"
 };
 
 type Command = (arg?: string, sudo?: boolean) => string;
