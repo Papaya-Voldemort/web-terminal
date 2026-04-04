@@ -13,12 +13,19 @@ Anything made by AI other than comments is documented in the codebase.
 - `cd <dir>` — Changes the current working directory (`..`, relative, and `~` supported)
 - `pwd` — Prints the current working directory
 - `mkdir <dir>` — Creates a new directory
-- `rmdir <dir>` — Removes a directory
+- `rmdir <dir>` — Removes a directory (use `sudo` for non-empty directories)
 - `touch <file>` — Creates a new file
 - `rm <file>` — Removes a file
+- `cat <file>` — Prints a file’s content
+- `ls [dir]` — Lists items in a directory
+- `clear` — Clears the terminal output
+- `mv <src> <dest>` — Moves a file
+- `cp <src> <dest>` — Copies a file
+- `write <file>` — Opens an editor for an existing file (`^S` save, `^X` save & exit, `^Q` quit)
 
 ## Future Plans
 Add every command inside of `COMMANDS_100.md`.
+Add Cloud Version
 
 To install dependencies:
 

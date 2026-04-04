@@ -373,7 +373,7 @@ function _cp(origin: string, target: string) {
 }
 
 // Nano/Write impelentation starts here
-
+// Claude assisted in development of Nano implementation
 // --- New filesystem helper ---
 function writeFile(path: string, content: string): boolean {
     const parts = path.split("/").filter(Boolean);
