@@ -26,6 +26,12 @@ Anything made by AI other than comments is documented in the codebase.
 - `mv <src> <dest>` — Moves a file
 - `cp <src> <dest>` — Copies a file
 - `write <file>` — Opens an editor for an existing file (`^S` save, `^X` save & exit, `^Q` quit)
+- `login` — Sign in with Google
+- `logout` — Sign out of the current session
+- `who` — Prints the current logged-in user
+- `date` — Prints the current local date
+- `history` — Shows command history
+- `grep <search> <file>` — Searches file contents for a string
 
 ## File overview
 - `app.ts` — boots the terminal UI, handles command input, history navigation, prompt updates, and loads the filesystem.
@@ -48,7 +54,6 @@ Anything made by AI other than comments is documented in the codebase.
 
 ## Future Plans
 Add every command inside of `COMMANDS_100.md`.
-Add Cloud Version
 
 To install dependencies:
 
