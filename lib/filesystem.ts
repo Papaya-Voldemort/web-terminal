@@ -1,6 +1,6 @@
 import { account, databases, DB_ID, COL_ID, Permission, Role } from "./appwrite";
 
-type Permissions = {
+export type Permissions = {
   owner: "rwx" | "rw-" | "r--" | "r-x" | "---" | string; // or use a bitmask number like 0o755
   group: string;
   others: string;
@@ -79,6 +79,20 @@ function applyMetadata<T extends FSBase>(base: T, metadata: Partial<FSBase> = {}
   if (metadata.group === undefined) merged.group = base.group;
   if (metadata.owner === undefined) merged.owner = base.owner;
   return merged;
+}
+
+function normalizePermissions(perms: Permissions | number): Permissions {
+  if (typeof perms === "number") {
+    const toString = (value: number) => {
+      return `${value & 4 ? "r" : "-"}${value & 2 ? "w" : "-"}${value & 1 ? "x" : "-"}`;
+    };
+    return {
+      owner: toString((perms >> 6) & 0o7),
+      group: toString((perms >> 3) & 0o7),
+      others: toString(perms & 0o7),
+    };
+  }
+  return perms;
 }
 
 export function getDirectoryNode(path: string): FSDir | null {
@@ -384,7 +398,7 @@ export function checkPermission(
   user: string,
   mode: "r" | "w" | "x"
 ): boolean {
-  const perms = node.permissions as Permissions;
+  const perms = normalizePermissions(node.permissions);
 
   // Determine which permission string applies to this user
   let permString: string;

@@ -32,6 +32,9 @@ Anything made by AI other than comments is documented in the codebase.
 - `date` — Prints the current local date
 - `history` — Shows command history
 - `grep <search> <file>` — Searches file contents for a string
+- `stat <path>` — Displays metadata for a file or directory
+- `chown <owner[:group]> <path>` — Changes owner and optional group of a node
+- `chmod <mode> <path>` — Changes permissions using symbolic or numeric mode
 
 ## File overview
 - `app.ts` — boots the terminal UI, handles command input, history navigation, prompt updates, and loads the filesystem.

@@ -10,8 +10,10 @@ import {
     resolvePath,
     toFsPath,
     writeFile,
+    updateLocalStorage,
     checkPermission,
     getDirectoryNode,
+    type Permissions,
 } from "./filesystem";
 import { openEditor } from "./editor";
 import {
@@ -391,7 +393,7 @@ function _stat(path: string): string {
 }
 
 function _chown(args: string, sudo = false): string {
-    const [newOwner, path] = args.split(" ");
+    const [newOwner, path] = args.split(" ").filter(Boolean);
     if (!newOwner || !path) {
         print("chown: missing operand");
         return "chown: missing operand";
@@ -414,7 +416,7 @@ function _chown(args: string, sudo = false): string {
     }
 
     // Support "owner:group" or just "owner"
-    const [owner, group] = newOwner.split(":");
+    const [owner = "", group] = newOwner.split(":");
     target.owner = owner;
     if (group) target.group = group;
 
@@ -427,7 +429,7 @@ function _chown(args: string, sudo = false): string {
 }
 
 function _chmod(args: string, sudo = false): string {
-    const [mode, path] = args.split(" ");
+    const [mode, path] = args.split(" ").filter(Boolean);
     if (!mode || !path) {
         print("chmod: missing operand");
         return "chmod: missing operand";
@@ -449,39 +451,54 @@ function _chmod(args: string, sudo = false): string {
         return msg;
     }
 
-    const perms = target.permissions as Permissions;
+    let perms = target.permissions as Permissions;
+    const numericMode = mode.match(/^([0-7]{3})$/);
+    if (numericMode) {
+        const digits = (numericMode[1] || "000").split("").map((digit) => parseInt(digit, 8));
+        const [ownerDigit = 0, groupDigit = 0, othersDigit = 0] = digits;
+        const toBits = (value: number) => `${value & 4 ? "r" : "-"}${value & 2 ? "w" : "-"}${value & 1 ? "x" : "-"}`;
+        perms = {
+            owner: toBits(ownerDigit),
+            group: toBits(groupDigit),
+            others: toBits(othersDigit),
+        };
+    } else {
+        const symbolic = mode.match(/^([ugoa]+)([+\-=])([rwx]+)$/);
+        if (!symbolic) {
+            const msg = `chmod: invalid mode: ${mode}`;
+            print(msg);
+            return msg;
+        }
 
-    // Parse symbolic mode: [ugoa][+-=][rwx]
-    const symbolic = mode.match(/^([ugoa]+)([+\-=])([rwx]+)$/);
-    if (!symbolic) {
-        const msg = `chmod: invalid mode: ${mode}`;
-        print(msg);
-        return msg;
+        const [, who, op, bits] = symbolic as [string, string, string, string];
+
+        const applyOp = (current: string, op: string, bits: string): string => {
+            let r = current[0] !== "-";
+            let w = current[1] !== "-";
+            let x = current[2] !== "-";
+
+            if (op === "=") {
+                r = false;
+                w = false;
+                x = false;
+            }
+
+            if (bits.includes("r")) r = op !== "-";
+            if (bits.includes("w")) w = op !== "-";
+            if (bits.includes("x")) x = op !== "-";
+
+            return `${r ? "r" : "-"}${w ? "w" : "-"}${x ? "x" : "-"}`;
+        };
+
+        const targets = who.includes("a") ? ["u", "g", "o"] : who.split("");
+        for (const t of targets) {
+            if (t === "u") perms.owner = applyOp(perms.owner, op, bits);
+            if (t === "g") perms.group = applyOp(perms.group, op, bits);
+            if (t === "o") perms.others = applyOp(perms.others, op, bits);
+        }
     }
 
-    const [, who, op, bits] = symbolic;
-
-    const applyOp = (current: string, op: string, bits: string): string => {
-        let r = current[0] !== "-";
-        let w = current[1] !== "-";
-        let x = current[2] !== "-";
-
-        if (op === "=") { r = false; w = false; x = false; }
-
-        if (bits.includes("r")) r = op !== "-";
-        if (bits.includes("w")) w = op !== "-";
-        if (bits.includes("x")) x = op !== "-";
-
-        return `${r ? "r" : "-"}${w ? "w" : "-"}${x ? "x" : "-"}`;
-    };
-
-    const targets = who.includes("a") ? ["u", "g", "o"] : who.split("");
-    for (const t of targets) {
-        if (t === "u") perms.owner = applyOp(perms.owner, op, bits);
-        if (t === "g") perms.group = applyOp(perms.group, op, bits);
-        if (t === "o") perms.others = applyOp(perms.others, op, bits);
-    }
-
+    target.permissions = perms;
     updateLocalStorage();
     const msg = `Changed permissions of ${path} to ${JSON.stringify(perms)}`;
     print(msg);
