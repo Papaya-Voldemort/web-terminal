@@ -13,6 +13,7 @@ import {
     updateLocalStorage,
     checkPermission,
     getDirectoryNode,
+    normalizePermissions,
     type Permissions,
 } from "./filesystem";
 import { openEditor } from "./editor";
@@ -409,7 +410,7 @@ function _chown(args: string, sudo = false): string {
         return msg;
     }
 
-    if (target.owner !== USER && !sudo) {
+    if (USER !== "root" && !sudo) {
         const msg = `chown: permission denied: ${path}`;
         print(msg);
         return msg;
@@ -451,7 +452,7 @@ function _chmod(args: string, sudo = false): string {
         return msg;
     }
 
-    let perms = target.permissions as Permissions;
+    let perms = normalizePermissions(target.permissions);
     const numericMode = mode.match(/^([0-7]{3})$/);
     if (numericMode) {
         const digits = (numericMode[1] || "000").split("").map((digit) => parseInt(digit, 8));
@@ -463,7 +464,7 @@ function _chmod(args: string, sudo = false): string {
             others: toBits(othersDigit),
         };
     } else {
-        const symbolic = mode.match(/^([ugoa]+)([+\-=])([rwx]+)$/);
+        const symbolic = mode.match(/^([ugoa]+)([+\-=])([rwx]*)$/);
         if (!symbolic) {
             const msg = `chmod: invalid mode: ${mode}`;
             print(msg);

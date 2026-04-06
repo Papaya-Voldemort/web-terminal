@@ -81,7 +81,7 @@ function applyMetadata<T extends FSBase>(base: T, metadata: Partial<FSBase> = {}
   return merged;
 }
 
-function normalizePermissions(perms: Permissions | number): Permissions {
+export function normalizePermissions(perms: Permissions | number): Permissions {
   if (typeof perms === "number") {
     const toString = (value: number) => {
       return `${value & 4 ? "r" : "-"}${value & 2 ? "w" : "-"}${value & 1 ? "x" : "-"}`;
