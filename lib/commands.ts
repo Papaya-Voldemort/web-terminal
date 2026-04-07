@@ -14,6 +14,8 @@ import {
     checkPermission,
     getDirectoryNode,
     normalizePermissions,
+    makeFunction,
+    addFunction,
     type Permissions,
 } from "./filesystem";
 import { openEditor } from "./editor";
@@ -26,13 +28,17 @@ import {
     setCurrentDir,
     setUser,
     setUserEmail,
+    isSignedIn,
 } from "./state";
+import { _via, registerMarketplaceCommand, loadPersistedCommands, initializeViaSystem } from "./via";
 
+// First command made prints hello
 function _hello() {
     print("Hello World!");
     return "Hello World!";
 }
 
+// help prints all of the commands
 function _help() {
     const lines = Object.entries(commandDescriptions).map(([cmd, desc]) => `  ${cmd} - ${desc}`);
     const out = ["Available commands:", ...lines].join("\n");
@@ -40,16 +46,19 @@ function _help() {
     return out;
 }
 
+// fake simulated ping because I just love Ping Pong
 function _ping() {
     print("Pong!");
     return "Pong!";
 }
 
+// Standard echo command implementation to print whats after it
 function _echo(input: string) {
     print(input);
     return input;
 }
 
+// change the current working directory
 function _cd(dir: string): string {
     const resolved = resolvePath(currentDir, dir);
     const fsPath = toFsPath(resolved);
@@ -74,11 +83,13 @@ function _cd(dir: string): string {
     return msg;
 }
 
+// print working directory
 function _pwd(): string {
     print(currentDir);
     return currentDir;
 }
 
+// make a new directory
 function _mkdir(dir: string): string {
     if (!dir) {
         print("mkdir: missing operand");
@@ -92,6 +103,7 @@ function _mkdir(dir: string): string {
     return msg;
 }
 
+// delete or remove a directory
 function _rmdir(dir: string, sudo = false): string {
     if (!dir) {
         print("rmdir: missing operand");
@@ -125,6 +137,7 @@ function _rmdir(dir: string, sudo = false): string {
     return msg;
 }
 
+// make a new file
 function _touch(name: string): string {
     if (!name) {
         print("touch: missing operand");
@@ -146,6 +159,7 @@ function _touch(name: string): string {
     return msg;
 }
 
+// delete a file
 function _rm(path: string, sudo = false): string {
     if (!path) {
         print("rm: missing operand");
@@ -172,6 +186,7 @@ function _rm(path: string, sudo = false): string {
     return msg;
 }
 
+// print the contents of a file
 function _cat(path: string): string {
     if (!path) {
         print("cat: missing operand");
@@ -179,7 +194,14 @@ function _cat(path: string): string {
     }
     const resolved = resolvePath(currentDir, path);
     const fsPath = toFsPath(resolved);
+    const dirNode = getDirectoryNode(fsPath);
     const file = getFile(fsPath);
+
+    if (dirNode !== null) {
+        const msg = `cat: ${path}: Is a directory`;
+        print(msg);
+        return msg;
+    }
 
     if (file === null) {
         const msg = `cat: no such file: ${path}`;
@@ -198,6 +220,7 @@ function _cat(path: string): string {
     return msg;
 }
 
+// list all items in the directory
 function _ls(path: string): string {
     const resolved = path ? resolvePath(currentDir, path) : currentDir;
     const fsPath = toFsPath(resolved);
@@ -212,6 +235,7 @@ function _ls(path: string): string {
     return msg;
 }
 
+// clear the console
 function _clear() {
     clearTerminal();
     const msg = "Cleared the terminal!";
@@ -219,6 +243,7 @@ function _clear() {
     return msg;
 }
 
+// move a file
 function _mv(origin: string, target: string): string {
     if (!origin || !target) {
         print("mv: missing operand");
@@ -255,6 +280,7 @@ function _mv(origin: string, target: string): string {
     return msg;
 }
 
+// copy a file
 function _cp(origin: string, target: string): string {
     if (!origin || !target) {
         print("cp: missing operand");
@@ -289,6 +315,7 @@ function _cp(origin: string, target: string): string {
     return msg;
 }
 
+// Complex Nano implentation for writing to files
 function _write(path: string, sudo = false): string {
     if (!path) {
         print("write: missing operand");
@@ -315,23 +342,27 @@ function _write(path: string, sudo = false): string {
     return "";
 }
 
+// check current user (kind of useless)
 function _who() {
     const output = USER_EMAIL ? `${USER} <${USER_EMAIL}>` : USER;
     print(output);
     return output;
 }
 
+// Print current date
 function _date(): string {
     const msg = new Date().toLocaleDateString();
     print(msg);
     return msg;
 }
 
+// print command history
 function _history() {
     print(JSON.stringify(history));
     return JSON.stringify(history);
 }
 
+// Search within a file
 function _grep(search: string, path: string): string {
     if (!search || !path) {
         const msg = "grep: missing operand";
@@ -362,6 +393,7 @@ function _grep(search: string, path: string): string {
     return msg;
 }
 
+// Print properites of a file
 function _stat(path: string): string {
     if (!path) {
         print("stat: missing operand");
@@ -393,6 +425,7 @@ function _stat(path: string): string {
     return msg;
 }
 
+// Change the owner of a file
 function _chown(args: string, sudo = false): string {
     const [newOwner, path] = args.split(" ").filter(Boolean);
     if (!newOwner || !path) {
@@ -429,6 +462,7 @@ function _chown(args: string, sudo = false): string {
     return msg;
 }
 
+// change write and read permisions of a file
 function _chmod(args: string, sudo = false): string {
     const [mode, path] = args.split(" ").filter(Boolean);
     if (!mode || !path) {
@@ -506,6 +540,8 @@ function _chmod(args: string, sudo = false): string {
     return msg;
 }
 
+
+
 export const commandDescriptions: Record<string, string> = {
     hello: "Prints Hello World!",
     help: "Displays all implemented commands and descriptions",
@@ -532,6 +568,7 @@ export const commandDescriptions: Record<string, string> = {
     stat: "Print the properties of a file!",
     chown: "Change owner of a file or directory (supports owner:group)",
     chmod: "Change permissions of a file or directory (e.g. chmod u+x file)",
+    via: "Upload a function to the database (usage: via <name> <code>)",
 };
 
 export type Command = (arg?: string, sudo?: boolean) => string;
@@ -577,4 +614,15 @@ export const commands: Partial<Record<string, Command>> = {
     stat: (arg = "") => _stat(arg),
     chown: (arg = "", sudo = false) => _chown(arg, sudo),
     chmod: (arg = "", sudo = false) => _chmod(arg, sudo),
+    via: (arg = "") => {
+        const [command = "", name = "", file = "", ...rest] = arg.split(" ");
+        const description = rest.join(" ").trim();
+        return _via(command, name, file, description) as any;
+    },
 };
+
+// Initialize VIA system with command registries
+initializeViaSystem(commands, commandDescriptions);
+
+// Re-export loadPersistedCommands for use in app.ts
+export { loadPersistedCommands };

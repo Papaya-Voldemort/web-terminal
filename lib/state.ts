@@ -2,6 +2,7 @@ export const HOST = "nest";
 
 export let USER = "hacker";
 export let USER_EMAIL = "";
+export let currentUser: { name: string; email: string } | null = null;
 export let currentDir = "~"; // "~" = filesystem root
 
 export let history: string[] = [];
@@ -13,6 +14,10 @@ export function setUser(name: string) {
 
 export function setUserEmail(email: string) {
   USER_EMAIL = email;
+}
+
+export function setCurrentUser(user: { name: string; email: string } | null) {
+  currentUser = user;
 }
 
 export function setCurrentDir(dir: string) {
@@ -29,4 +34,8 @@ export function resetHistoryIndex() {
 
 export function setHistoryIndex(index: number) {
   historyIndex = index;
+}
+
+export function isSignedIn() {
+  return currentUser !== null;
 }

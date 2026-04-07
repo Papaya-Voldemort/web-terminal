@@ -1,4 +1,4 @@
-import { account, databases, DB_ID, COL_ID, Permission, Role } from "./appwrite";
+import { account, databases, DB_ID, COL_ID, MKT_ID, Permission, Role, Query, ID } from "./appwrite";
 
 export type Permissions = {
   owner: "rwx" | "rw-" | "r--" | "r-x" | "---" | string; // or use a bitmask number like 0o755
@@ -294,27 +294,27 @@ export function seedFilesystem() {
   const parts = (path: string) => path.split("/").filter(Boolean);
 
   const dirs = [
-    "root/downloads/music",
-    "root/downloads/videos",
-    "root/downloads/games",
+    "root/documents",
+    "root/downloads",
     "root/pictures",
+    "root/projects",
+    "root/.config",
+    "root/.ssh",
   ];
 
   const files: [string, string, string, Partial<FSBase>][] = [
-    ["root/downloads/music/song.mp3", "audio content here", "hacker", {}],
-    ["root/documents/report.docx", "report content here", "hacker", {}],
-    // Only root can read/write, everyone else is locked out
-    ["root/secret.txt", "top secret root content", "root", {
-      permissions: { owner: "rw-", group: "---", others: "---" }
-    }],
-    // Everyone can read, but only hacker can write
-    ["root/readme.txt", "welcome to the terminal!", "hacker", {
+    ["root/.bashrc", 'export PATH="$HOME/.local/bin:$PATH"\nalias ll="ls -lah"', "root", {
       permissions: { owner: "rw-", group: "r--", others: "r--" }
     }],
-    // No one can read or write (you can use this to test execute-only edge cases)
-    ["root/locked.txt", "you should not see this", "root", {
-      permissions: { owner: "---", group: "---", others: "---" }
+    ["root/.profile", 'if [ -f ~/.bashrc ]; then . ~/.bashrc; fi', "root", {
+      permissions: { owner: "rw-", group: "r--", others: "r--" }
     }],
+    ["root/.config/.commands", "", "root", {
+      permissions: { owner: "rw-", group: "r--", others: "r--" }
+    }],
+    ["root/.config/.via", "VIA-SIGNED=false", "root", {
+      permissions: { owner: "rw-", group: "r--", others: "r--" }
+    }]
   ];
 
   for (const dir of dirs) {
@@ -413,4 +413,92 @@ export function checkPermission(
   // Map mode to index: r=0, w=1, x=2
   const index = { r: 0, w: 1, x: 2 }[mode];
   return permString[index] !== "-";
+}
+
+export async function makeFunction(name: string, code: string, description?: string) {
+  const user = await account.get().catch(() => null);
+  if (!user) return;
+
+  // Check if this function already exists for this user
+  const existing = await databases.listDocuments(DB_ID, MKT_ID, [
+    Query.equal("name", name),
+  ]);
+
+  const documentData: Record<string, unknown> = {
+    name,
+    code,
+    version: 1.0,
+    author: user.email || user.name || "anonymous",
+  };
+  if (description && typeof description === "string") {
+    documentData.description = description;
+  }
+
+  if (existing.documents.length > 0) {
+    const doc = existing.documents[0] as { version?: number; $id?: string };
+    const newVersion = parseFloat(((doc.version ?? 0) + 0.1).toFixed(1));
+
+    await databases.updateDocument(DB_ID, MKT_ID, doc.$id || "", {
+      ...documentData,
+      version: newVersion,
+    });
+  } else {
+    await databases.createDocument(
+      DB_ID, MKT_ID,
+      ID.unique(),
+      documentData,
+      [
+        Permission.read(Role.user(user.$id)),
+        Permission.update(Role.user(user.$id)),
+        Permission.delete(Role.user(user.$id)),
+      ]
+    );
+  }
+}
+
+export async function addFunction(name: string): Promise<{ fn: Function; description?: string; author?: string } | null> {
+  const existing = await databases.listDocuments(DB_ID, MKT_ID, [
+    Query.equal("name", name),
+  ]);
+
+  if (existing.documents.length === 0) return null;
+
+  const doc = existing.documents[0] as { code?: string; description?: string; author?: string };
+  let code = doc.code;
+  if (!code || typeof code !== "string") return null;
+
+  // Strip export statements to make the code work with Function constructor
+  code = code
+    .replace(/^export\s+default\s+/m, "")
+    .replace(/^export\s+/m, "")
+    .trim();
+
+  // Strip TypeScript type annotations to make code runnable with Function()
+  code = code
+    .replace(/:\s*(?:\w+|<[^>]*>|\{[^}]*\}|\[[^\]]*\])/g, "") // Remove : Type annotations
+    .replace(/as\s+\w+/g, "") // Remove as Type casts
+    .trim();
+
+  try {
+    const fn = new Function(`return ${code}`)();
+    
+    // Handle both function and object with run method
+    let executableFn: Function | null = null;
+    if (typeof fn === "function") {
+      executableFn = fn;
+    } else if (typeof fn === "object" && fn !== null && typeof fn.run === "function") {
+      // If it's an object with a run method, wrap it
+      executableFn = (input: string) => fn.run(input);
+    }
+    
+    if (!executableFn) return null;
+    
+    return {
+      fn: executableFn,
+      description: typeof doc.description === "string" ? doc.description : undefined,
+      author: typeof doc.author === "string" ? doc.author : undefined,
+    };
+  } catch {
+    return null;
+  }
 }

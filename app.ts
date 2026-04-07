@@ -1,4 +1,4 @@
-import { commands } from "./lib/commands";
+import { commands, loadPersistedCommands } from "./lib/commands";
 import { print, updatePrompt, input } from "./lib/dom";
 import { loadFilesystem } from "./lib/filesystem";
 import {
@@ -12,6 +12,7 @@ import {
   setHistoryIndex,
   setUser,
   setUserEmail,
+  setCurrentUser,
 } from "./lib/state";
 
 updatePrompt(USER, HOST, currentDir);
@@ -74,6 +75,8 @@ document.addEventListener("click", () => {
   const user = await loadFilesystem();
   setUser(user.name);
   setUserEmail(user.email);
+  setCurrentUser(user.email ? { name: user.name, email: user.email } : null);
+  await loadPersistedCommands();
   updatePrompt(USER, HOST, currentDir);
   print("Welcome! Type 'help' for commands.");
 })();
