@@ -441,6 +441,7 @@ export async function makeFunction(name: string, code: string, description?: str
     await databases.updateDocument(DB_ID, MKT_ID, doc.$id || "", {
       ...documentData,
       version: newVersion,
+      downloads: 0,
     });
   } else {
     await databases.createDocument(

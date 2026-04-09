@@ -1,6 +1,7 @@
 export const terminal = document.querySelector<HTMLDivElement>("#terminal")!;
 export const input = document.querySelector<HTMLElement>("#input")!;
 export const workingDir = document.querySelector<HTMLSpanElement>("#workingDir")!;
+export const htmlTag = document.querySelector<HTMLSpanElement>("html")!;
 
 if (!terminal || !input || !workingDir) {
   throw new Error("Required DOM elements #terminal, #input, or #workingDir are missing");
@@ -22,4 +23,8 @@ export function clearTerminal() {
 
 export function updatePrompt(user: string, host: string, currentDir: string) {
   workingDir.textContent = `${user}@${host} ${currentDir} $ `;
+}
+
+export function changeTheme(theme: string) {
+  htmlTag.classList = theme;
 }

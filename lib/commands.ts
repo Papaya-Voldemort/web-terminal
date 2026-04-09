@@ -1,4 +1,4 @@
-import { clearTerminal, print, updatePrompt } from "./dom";
+import { clearTerminal, print, updatePrompt, changeTheme } from "./dom";
 import { loginWithGoogle, logout } from "./auth";
 import {
     getDirectory,
@@ -540,7 +540,204 @@ function _chmod(args: string, sudo = false): string {
     return msg;
 }
 
+// print the first part of a file (use -n flag for extra control)
+// Example Use:
+// `head -n 15 [file]` to print the first 15 lines
+function _head(args: string): string {
+    const parts = args.split(" ");
+    let n = 10;
+    let path = parts[0];
 
+    if (parts[0] === "-n" && parts[1] && parts[2]) {
+        n = parseInt(parts[1]);
+        path = parts[2];
+    }
+
+    if (!path) {
+        print("head: missing operand");
+        return "head: missing operand";
+    }
+
+
+    const resolved = resolvePath(currentDir, path);
+    const file = getFile(toFsPath(resolved));
+
+    if (!file) {
+        const msg = `head: no such file: ${path}`;
+        print(msg);
+        return msg;
+    }
+
+    const msg = file.content.split("\n").slice(0, n).join("\n");
+    print(msg);
+    return msg;
+}
+
+// Same as head pretty much just this time its the end of the file!
+function _tail(args: string): string {
+    const parts = args.split(" ");
+    let n = 10;
+    let path = parts[0];
+
+    if (parts[0] === "-n" && parts[1] && parts[2]) {
+        n = parseInt(parts[1]);
+        path = parts[2];
+    }
+
+    if (!path) {
+        print("tail: missing operand");
+        return "tail: missing operand";
+    }
+
+    const resolved = resolvePath(currentDir, path);
+    const file = getFile(toFsPath(resolved));
+
+    if (!file) {
+        const msg = `tail: no such file: ${path}`;
+        print(msg); return msg;
+    }
+
+    const msg = file.content.split("\n").slice(-n).join("\n");
+    print(msg);
+    return msg;
+}
+
+function _theme(theme: string): string {
+    const themes = [
+        "light",
+        "dark",
+        "dracula",
+        "nord",
+        "monokai",
+        "solarized-dark",
+        "tokyo-night",
+        "gruvbox-dark",
+        "catppuccin-mocha",
+        "one-dark-pro",
+        "rose-pine",
+        "everforest-dark",
+        "kanagawa",
+        "ayu-dark",
+        "night-owl",
+        "cobalt2",
+        "horizon",
+        "palenight",
+        "iceberg",
+        "panda-syntax",
+        "spacegray",
+        "nightfox",
+        "solarized-light",
+        "catppuccin-latte",
+        "gruvbox-light",
+        "github-light",
+        "papercolor-light",
+        "rose-pine-dawn",
+        "ayu-light",
+        "everforest-light",
+        "tomorrow",
+        "material-light",
+        "synthwave-84",
+        "cyberpunk-2077",
+        "neon-nights",
+        "hotline-miami",
+        "retrowave",
+        "outrun",
+        "vaporwave",
+        "miami-vice",
+        "electric-blue",
+        "ultraviolet",
+        "ibm-green-phosphor",
+        "apple-ii",
+        "atari-st",
+        "dos-blue",
+        "c64-petscii",
+        "vt100-white",
+        "ukiyo-e-japanese-woodblock",
+        "zen-garden-japan",
+        "pagoda-red-china",
+        "silk-road-central-asia",
+        "henna-india",
+        "rangoli-india",
+        "sahara-north-africa",
+        "kente-west-africa",
+        "savanna-east-africa",
+        "ndebele-southern-africa",
+        "viking-norse",
+        "celtic-ireland-scotland",
+        "byzantine-eastern-europe",
+        "slavic-folk",
+        "ottoman-empire",
+        "aztec-sun-mexico",
+        "mayan-jade-central-america",
+        "incan-gold-south-america",
+        "pacific-islander",
+        "aboriginal-dot",
+        "deep-ocean",
+        "coral-reef",
+        "bioluminescence",
+        "aurora-borealis",
+        "midnight-forest",
+        "cherry-blossom",
+        "autumn-maple",
+        "winter-frost",
+        "desert-dunes",
+        "volcanic-lava",
+        "deep-space-nine",
+        "nebula",
+        "event-horizon",
+        "mars-colony",
+        "starfield",
+        "alien-biome",
+        "tron-legacy",
+        "blade-runner",
+        "dune-arrakis",
+        "interstellar",
+        "vs-code-dark",
+        "sublime-text",
+        "vim-dark",
+        "emacs-misterioso",
+        "jetbrains-darcula",
+        "xcode-dark",
+        "notepad-default",
+        "terminalapp-macos",
+        "windows-console",
+        "hyper-terminal",
+    ];
+    if (themes.includes(theme)) {
+        const finalTheme = theme.replace(/ /g, "-");
+        changeTheme(finalTheme);
+        const msg = `theme: updated theme to ${theme} mode`;
+        print(msg);
+        return msg;
+    };
+    if (theme === "help" || theme === "") {
+        // Pretty print themes in columns
+        const columnsPerRow = 4;
+        const columnWidth = 30;
+        const lines = [];
+        
+        lines.push("Available Themes:");
+        lines.push("=".repeat(columnsPerRow * columnWidth));
+        
+        for (let i = 0; i < themes.length; i += columnsPerRow) {
+            const row = themes
+                .slice(i, i + columnsPerRow)
+                .map(name => name.padEnd(columnWidth))
+                .join("");
+            lines.push(row);
+        }
+        
+        lines.push("=".repeat(columnsPerRow * columnWidth));
+        lines.push(`Total: ${themes.length} themes`);
+        lines.push("Usage: theme <theme-name>");
+        
+        const output = lines.join("\n");
+        print(output);
+        return output;
+    }
+    print("theme: option not found");
+    return ("theme: option not found");
+}
 
 export const commandDescriptions: Record<string, string> = {
     hello: "Prints Hello World!",
@@ -569,6 +766,9 @@ export const commandDescriptions: Record<string, string> = {
     chown: "Change owner of a file or directory (supports owner:group)",
     chmod: "Change permissions of a file or directory (e.g. chmod u+x file)",
     via: "Upload a function to the database (usage: via <name> <code>)",
+    head: "Print the first lines of a file :)",
+    tail: "Print the last lines of a file ;)",
+    theme: "Change the theme of the terminal"
 };
 
 export type Command = (arg?: string, sudo?: boolean) => string;
@@ -619,6 +819,9 @@ export const commands: Partial<Record<string, Command>> = {
         const description = rest.join(" ").trim();
         return _via(command, name, file, description) as any;
     },
+    head: (arg = "") => _head(arg),
+    tail: (arg = "") => _tail(arg),
+    theme: (arg = "") => _theme(arg),
 };
 
 // Initialize VIA system with command registries

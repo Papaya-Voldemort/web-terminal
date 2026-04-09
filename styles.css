@@ -1,0 +1,1154 @@
+:root {
+    --background: black;
+    --text-color: white;
+    --font-family: monospace;
+    --writer-background: #1e1e1e;
+    --writer-text-color: #d4d4d4;
+    --writer-head: #333;
+    --caret-color: white;
+}
+
+body {
+    background: var(--background);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+#terminal {
+    white-space: pre-wrap;
+    line-height: 1.2;
+    word-break: break-all;
+}
+
+#inputRow {
+    font-family: var(--font-family);
+    color: var(--text-color);
+    background: var(--background);
+    word-break: break-all;
+    line-height: 1.2;
+}
+
+#workingDir {
+    display: inline;
+    white-space: nowrap;
+}
+
+#input {
+    display: inline;
+    background: var(--background);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    outline: none;
+    white-space: pre-wrap;
+    word-break: break-all;
+    caret-color: var(--caret-color);
+    min-width: 1ch;
+}
+
+.hideMe {
+    display: none;
+}
+
+#writeEditor {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--writer-background);
+    color: var(--writer-text-color);
+    font-family: var(--font-family);
+    z-index: 999;
+}
+
+#writeHeader,
+#writeFooter {
+    background: #333;
+    color: var(--text-color);
+    padding: 4px 8px;
+    font-size: 0.85rem;
+}
+
+#writeArea {
+    flex: 1;
+    background: var(--writer-background);
+    color: var(--writer-text-color);
+    border: none;
+    outline: none;
+    padding: 8px;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    resize: none;
+    tab-size: 4;
+}
+
+/* THEMES AFTER THIS POINT */
+/* Default Terminal Dark Mode */
+.dark {
+    --background: black;
+    --text-color: white;
+    --font-family: monospace;
+    --writer-background: #1e1e1e;
+    --writer-text-color: #d4d4d4;
+    --writer-head: #333;
+    --caret-color: white;
+}
+
+/* Terminal Light Mode */
+.light {
+    --background: white;
+    --text-color: black;
+    --font-family: monospace;
+    --writer-background: #d4d4d4;
+    --writer-text-color: #1e1e1e;
+    --writer-head: #f3f3f3;
+    --caret-color: none;
+}
+
+.dracula {
+    --background: #282a36;
+    --text-color: #f8f8f2;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #1e1d2e;
+    --writer-text-color: #f8f8f2;
+    --writer-head: #44475a;
+    --caret-color: #bd93f9;
+}
+
+.nord {
+    --background: #2e3440;
+    --text-color: #d8dee9;
+    --font-family: 'JetBrains Mono', monospace;
+    --writer-background: #3b4252;
+    --writer-text-color: #e5e9f0;
+    --writer-head: #434c5e;
+    --caret-color: #88c0d0;
+}
+
+.monokai {
+    --background: #272822;
+    --text-color: #f8f8f2;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #1e1f1c;
+    --writer-text-color: #f8f8f2;
+    --writer-head: #3e3d32;
+    --caret-color: #a6e22e;
+}
+.solarized-dark {
+    --background: #002b36;
+    --text-color: #839496;
+    --font-family: 'Inconsolata', monospace;
+    --writer-background: #073642;
+    --writer-text-color: #93a1a1;
+    --writer-head: #094554;
+    --caret-color: #268bd2;
+}
+
+.tokyo-night {
+    --background: #1a1b26;
+    --text-color: #c0caf5;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #16161e;
+    --writer-text-color: #c0caf5;
+    --writer-head: #292e42;
+    --caret-color: #7aa2f7;
+}
+.gruvbox-dark {
+    --background: #282828;
+    --text-color: #ebdbb2;
+    --font-family: 'JetBrains Mono', monospace;
+    --writer-background: #1d2021;
+    --writer-text-color: #ebdbb2;
+    --writer-head: #3c3836;
+    --caret-color: #fabd2f;
+}
+.catppuccin-mocha {
+    --background: #1e1e2e;
+    --text-color: #cdd6f4;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #181825;
+    --writer-text-color: #cdd6f4;
+    --writer-head: #313244;
+    --caret-color: #cba6f7;
+}
+
+.one-dark-pro {
+    --background: #282c34;
+    --text-color: #abb2bf;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #21252b;
+    --writer-text-color: #abb2bf;
+    --writer-head: #3b4048;
+    --caret-color: #61afef;
+}
+
+.rose-pine {
+    --background: #191724;
+    --text-color: #e0def4;
+    --font-family: 'IBM Plex Mono', monospace;
+    --writer-background: #1f1d2e;
+    --writer-text-color: #e0def4;
+    --writer-head: #26233a;
+    --caret-color: #ebbcba;
+}
+.dracula {
+    --background: #282a36;
+    --text-color: #f8f8f2;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #1e1d2e;
+    --writer-text-color: #f8f8f2;
+    --writer-head: #44475a;
+    --caret-color: #bd93f9;
+}
+
+.nord {
+    --background: #2e3440;
+    --text-color: #d8dee9;
+    --font-family: 'JetBrains Mono', monospace;
+    --writer-background: #3b4252;
+    --writer-text-color: #e5e9f0;
+    --writer-head: #434c5e;
+    --caret-color: #88c0d0;
+}
+
+.monokai {
+    --background: #272822;
+    --text-color: #f8f8f2;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #1e1f1c;
+    --writer-text-color: #f8f8f2;
+    --writer-head: #3e3d32;
+    --caret-color: #a6e22e;
+}
+
+.solarized-dark {
+    --background: #002b36;
+    --text-color: #839496;
+    --font-family: 'Inconsolata', monospace;
+    --writer-background: #073642;
+    --writer-text-color: #93a1a1;
+    --writer-head: #094554;
+    --caret-color: #268bd2;
+}
+
+.tokyo-night {
+    --background: #1a1b26;
+    --text-color: #c0caf5;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #16161e;
+    --writer-text-color: #c0caf5;
+    --writer-head: #292e42;
+    --caret-color: #7aa2f7;
+}
+
+.gruvbox-dark {
+    --background: #282828;
+    --text-color: #ebdbb2;
+    --font-family: 'JetBrains Mono', monospace;
+    --writer-background: #1d2021;
+    --writer-text-color: #ebdbb2;
+    --writer-head: #3c3836;
+    --caret-color: #fabd2f;
+}
+
+.catppuccin-mocha {
+    --background: #1e1e2e;
+    --text-color: #cdd6f4;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #181825;
+    --writer-text-color: #cdd6f4;
+    --writer-head: #313244;
+    --caret-color: #cba6f7;
+}
+
+.one-dark-pro {
+    --background: #282c34;
+    --text-color: #abb2bf;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #21252b;
+    --writer-text-color: #abb2bf;
+    --writer-head: #3b4048;
+    --caret-color: #61afef;
+}
+
+.ros-pine {
+    --background: #191724;
+    --text-color: #e0def4;
+    --font-family: 'IBM Plex Mono', monospace;
+    --writer-background: #1f1d2e;
+    --writer-text-color: #e0def4;
+    --writer-head: #26233a;
+    --caret-color: #ebbcba;
+}
+
+.everforest-dark {
+    --background: #272e33;
+    --text-color: #d3c6aa;
+    --font-family: 'Cascadia Code', monospace;
+    --writer-background: #1e2326;
+    --writer-text-color: #d3c6aa;
+    --writer-head: #2d353b;
+    --caret-color: #a7c080;
+}
+
+.kanagawa {
+    --background: #1f1f28;
+    --text-color: #dcd7ba;
+    --font-family: 'Sarasa Mono', monospace;
+    --writer-background: #16161d;
+    --writer-text-color: #dcd7ba;
+    --writer-head: #2a2a37;
+    --caret-color: #7e9cd8;
+}
+
+.ayu-dark {
+    --background: #0a0e14;
+    --text-color: #b3b1ad;
+    --font-family: 'JetBrains Mono', monospace;
+    --writer-background: #0d1017;
+    --writer-text-color: #b3b1ad;
+    --writer-head: #131721;
+    --caret-color: #e6b450;
+}
+
+.night-owl {
+    --background: #011627;
+    --text-color: #d6deeb;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #010e1a;
+    --writer-text-color: #d6deeb;
+    --writer-head: #0b2033;
+    --caret-color: #82aaff;
+}
+
+.cobalt2 {
+    --background: #193549;
+    --text-color: #ffffff;
+    --font-family: 'Consolas', monospace;
+    --writer-background: #0d2137;
+    --writer-text-color: #ffffff;
+    --writer-head: #1a3a50;
+    --caret-color: #ffc600;
+}
+
+.horizon {
+    --background: #1c1e26;
+    --text-color: #d5d8da;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #16171f;
+    --writer-text-color: #d5d8da;
+    --writer-head: #232530;
+    --caret-color: #e95678;
+}
+
+.palenight {
+    --background: #292d3e;
+    --text-color: #a6accd;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #1c1f2b;
+    --writer-text-color: #c3cee3;
+    --writer-head: #32374d;
+    --caret-color: #82aaff;
+}
+
+.iceberg {
+    --background: #161821;
+    --text-color: #c6c8d1;
+    --font-family: 'Source Code Pro', monospace;
+    --writer-background: #0f1117;
+    --writer-text-color: #c6c8d1;
+    --writer-head: #1e2132;
+    --caret-color: #84a0c6;
+}
+
+.panda-syntax {
+    --background: #292a2b;
+    --text-color: #e6e6e6;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #1a1b1c;
+    --writer-text-color: #e6e6e6;
+    --writer-head: #333435;
+    --caret-color: #19f9d8;
+}
+
+.spacegray {
+    --background: #20242a;
+    --text-color: #b0b8c8;
+    --font-family: 'Menlo', monospace;
+    --writer-background: #16191e;
+    --writer-text-color: #b0b8c8;
+    --writer-head: #282c34;
+    --caret-color: #5b6e8c;
+}
+
+.nightfox {
+    --background: #192330;
+    --text-color: #cdcecf;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #131a24;
+    --writer-text-color: #cdcecf;
+    --writer-head: #212e3f;
+    --caret-color: #81a1c1;
+}
+
+.solarized-light {
+    --background: #fdf6e3;
+    --text-color: #657b83;
+    --font-family: 'Inconsolata', monospace;
+    --writer-background: #eee8d5;
+    --writer-text-color: #586e75;
+    --writer-head: #d9cfb5;
+    --caret-color: #268bd2;
+}
+
+.catppuccin-latte {
+    --background: #eff1f5;
+    --text-color: #4c4f69;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #e6e9ef;
+    --writer-text-color: #4c4f69;
+    --writer-head: #ccd0da;
+    --caret-color: #1e66f5;
+}
+
+.gruvbox-light {
+    --background: #fbf1c7;
+    --text-color: #3c3836;
+    --font-family: 'JetBrains Mono', monospace;
+    --writer-background: #f2e5bc;
+    --writer-text-color: #3c3836;
+    --writer-head: #d5c4a1;
+    --caret-color: #b57614;
+}
+
+.github-light {
+    --background: #ffffff;
+    --text-color: #24292e;
+    --font-family: 'SFMono-Regular', monospace;
+    --writer-background: #f6f8fa;
+    --writer-text-color: #24292e;
+    --writer-head: #e1e4e8;
+    --caret-color: #0366d6;
+}
+
+.papercolor-light {
+    --background: #eeeeee;
+    --text-color: #444444;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #e4e4e4;
+    --writer-text-color: #444444;
+    --writer-head: #d0d0d0;
+    --caret-color: #0087af;
+}
+
+.ros-pine-dawn {
+    --background: #faf4ed;
+    --text-color: #575279;
+    --font-family: 'IBM Plex Mono', monospace;
+    --writer-background: #fffaf3;
+    --writer-text-color: #575279;
+    --writer-head: #f2e9e1;
+    --caret-color: #907aa9;
+}
+
+.ayu-light {
+    --background: #fafafa;
+    --text-color: #5c6166;
+    --font-family: 'JetBrains Mono', monospace;
+    --writer-background: #f3f3f3;
+    --writer-text-color: #5c6166;
+    --writer-head: #e3e3e3;
+    --caret-color: #f2ae49;
+}
+
+.everforest-light {
+    --background: #fdf6e3;
+    --text-color: #5c6a72;
+    --font-family: 'Cascadia Code', monospace;
+    --writer-background: #f0ead4;
+    --writer-text-color: #5c6a72;
+    --writer-head: #e0d8ba;
+    --caret-color: #8da101;
+}
+
+.tomorrow {
+    --background: #ffffff;
+    --text-color: #4d4d4c;
+    --font-family: 'Menlo', monospace;
+    --writer-background: #f2f2f2;
+    --writer-text-color: #4d4d4c;
+    --writer-head: #d6d6d6;
+    --caret-color: #4271ae;
+}
+
+.material-light {
+    --background: #fafafa;
+    --text-color: #90a4ae;
+    --font-family: 'Roboto Mono', monospace;
+    --writer-background: #eceff1;
+    --writer-text-color: #546e7a;
+    --writer-head: #cfd8dc;
+    --caret-color: #39adb5;
+}
+
+.synthwave-84 {
+    --background: #262335;
+    --text-color: #ffffff;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #1a1a2e;
+    --writer-text-color: #ffffff;
+    --writer-head: #2d2b55;
+    --caret-color: #ff7edb;
+}
+
+.cyberpunk-2077 {
+    --background: #0d0d1a;
+    --text-color: #e0e0ff;
+    --font-family: 'Share Tech Mono', monospace;
+    --writer-background: #060610;
+    --writer-text-color: #e0e0ff;
+    --writer-head: #12122a;
+    --caret-color: #00fff5;
+}
+
+.neon-nights {
+    --background: #0b0c10;
+    --text-color: #c5c6c7;
+    --font-family: 'Orbitron', monospace;
+    --writer-background: #050607;
+    --writer-text-color: #c5c6c7;
+    --writer-head: #111318;
+    --caret-color: #66fcf1;
+}
+
+.hotline-miami {
+    --background: #1a0a2e;
+    --text-color: #f0f0f0;
+    --font-family: 'VT323', monospace;
+    --writer-background: #100620;
+    --writer-text-color: #f0f0f0;
+    --writer-head: #22103a;
+    --caret-color: #ff6ef7;
+}
+
+.retrowave {
+    --background: #030111;
+    --text-color: #d5ccf0;
+    --font-family: 'Press Start 2P', monospace;
+    --writer-background: #010008;
+    --writer-text-color: #d5ccf0;
+    --writer-head: #0a0520;
+    --caret-color: #fc28a8;
+}
+
+.outrun {
+    --background: #000000;
+    --text-color: #ff71ce;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #0d0d0d;
+    --writer-text-color: #b967ff;
+    --writer-head: #151515;
+    --caret-color: #01cdfe;
+}
+
+.vaporwave {
+    --background: #1a0533;
+    --text-color: #ffb3de;
+    --font-family: 'VT323', monospace;
+    --writer-background: #120326;
+    --writer-text-color: #ffe0f7;
+    --writer-head: #200640;
+    --caret-color: #05ffa1;
+}
+
+.miami-vice {
+    --background: #0d1b2a;
+    --text-color: #e0fbfc;
+    --font-family: 'Orbitron', monospace;
+    --writer-background: #081522;
+    --writer-text-color: #e0fbfc;
+    --writer-head: #12253a;
+    --caret-color: #ee6c4d;
+}
+
+.electric-blue {
+    --background: #000d1a;
+    --text-color: #cceeff;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #00070f;
+    --writer-text-color: #cceeff;
+    --writer-head: #001a33;
+    --caret-color: #0088ff;
+}
+
+.ultraviolet {
+    --background: #0e0020;
+    --text-color: #e8c8ff;
+    --font-family: 'JetBrains Mono', monospace;
+    --writer-background: #09001a;
+    --writer-text-color: #e8c8ff;
+    --writer-head: #1a0035;
+    --caret-color: #bf5fff;
+}
+
+.ibm-green-phosphor {
+    --background: #000000;
+    --text-color: #33ff33;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #0a0a0a;
+    --writer-text-color: #00ee00;
+    --writer-head: #111111;
+    --caret-color: #55ff55;
+}
+
+.apple-ii {
+    --background: #000000;
+    --text-color: #33ff33;
+    --font-family: 'Press Start 2P', monospace;
+    --writer-background: #000000;
+    --writer-text-color: #00dd00;
+    --writer-head: #0a0a0a;
+    --caret-color: #55ff55;
+}
+
+.atari-st {
+    --background: #000000;
+    --text-color: #ffffff;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #0a0a0a;
+    --writer-text-color: #cccccc;
+    --writer-head: #111111;
+    --caret-color: #aaaaaa;
+}
+
+.dos-blue {
+    --background: #000080;
+    --text-color: #aaaaaa;
+    --font-family: 'Perfect DOS VGA', monospace;
+    --writer-background: #00007a;
+    --writer-text-color: #aaaaaa;
+    --writer-head: #000070;
+    --caret-color: #ffffff;
+}
+
+.c64-petscii {
+    --background: #40318d;
+    --text-color: #7869c4;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #352879;
+    --writer-text-color: #7869c4;
+    --writer-head: #2d2070;
+    --caret-color: #a5a2c3;
+}
+
+.vt100-white {
+    --background: #000000;
+    --text-color: #c0c0c0;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #0a0a0a;
+    --writer-text-color: #c0c0c0;
+    --writer-head: #111111;
+    --caret-color: #ffffff;
+}
+
+.ukiyo-e-japanese-woodblock {
+    --background: #1a1209;
+    --text-color: #e8dcc8;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #120d06;
+    --writer-text-color: #e8dcc8;
+    --writer-head: #2a1f10;
+    --caret-color: #c1440e;
+}
+
+.zen-garden-japan {
+    --background: #f5f0e8;
+    --text-color: #3d3530;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #ede8e0;
+    --writer-text-color: #3d3530;
+    --writer-head: #d5cfc5;
+    --caret-color: #5e8c61;
+}
+
+.pagoda-red-china {
+    --background: #1a0500;
+    --text-color: #f5dcc8;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #110300;
+    --writer-text-color: #f5dcc8;
+    --writer-head: #260a00;
+    --caret-color: #c0392b;
+}
+
+.silk-road-central-asia {
+    --background: #1c1005;
+    --text-color: #e8c882;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #140b03;
+    --writer-text-color: #e8c882;
+    --writer-head: #2a1a08;
+    --caret-color: #b5860d;
+}
+
+.henna-india {
+    --background: #1a0a00;
+    --text-color: #f0c090;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #120600;
+    --writer-text-color: #f0c090;
+    --writer-head: #2a1200;
+    --caret-color: #c0440e;
+}
+
+.rangoli-india {
+    --background: #0a001a;
+    --text-color: #f0c8ff;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #060010;
+    --writer-text-color: #f0c8ff;
+    --writer-head: #14002a;
+    --caret-color: #ff44bb;
+}
+
+.sahara-north-africa {
+    --background: #1a1000;
+    --text-color: #f0d888;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #120b00;
+    --writer-text-color: #f0d888;
+    --writer-head: #2a1e00;
+    --caret-color: #e8a020;
+}
+
+.kente-west-africa {
+    --background: #1a0a00;
+    --text-color: #ffd040;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #120600;
+    --writer-text-color: #ffd040;
+    --writer-head: #2a1200;
+    --caret-color: #c00000;
+}
+
+.savanna-east-africa {
+    --background: #0f1500;
+    --text-color: #d4c888;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #090e00;
+    --writer-text-color: #d4c888;
+    --writer-head: #181f00;
+    --caret-color: #c87820;
+}
+
+.ndebele-southern-africa {
+    --background: #000000;
+    --text-color: #ffffff;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #0a0a0a;
+    --writer-text-color: #ffffff;
+    --writer-head: #111111;
+    --caret-color: #e52020;
+}
+
+.viking-norse {
+    --background: #0e1520;
+    --text-color: #c8d8e8;
+    --font-family: 'MxPlus IBM VGA', monospace;
+    --writer-background: #080f18;
+    --writer-text-color: #c8d8e8;
+    --writer-head: #162030;
+    --caret-color: #7aadcc;
+}
+
+.celtic-ireland-scotland {
+    --background: #0a1a08;
+    --text-color: #c8e8c0;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #060f05;
+    --writer-text-color: #c8e8c0;
+    --writer-head: #102818;
+    --caret-color: #40a848;
+}
+
+.byzantine-eastern-europe {
+    --background: #1a0a1a;
+    --text-color: #e8c8e8;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #120612;
+    --writer-text-color: #e8c8e8;
+    --writer-head: #261426;
+    --caret-color: #9b59b6;
+}
+
+.slavic-folk {
+    --background: #1a0808;
+    --text-color: #f0c8a8;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #120505;
+    --writer-text-color: #f0c8a8;
+    --writer-head: #2a0e0e;
+    --caret-color: #c0341d;
+}
+
+.ottoman-empire {
+    --background: #1a1000;
+    --text-color: #e8d0a0;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #120b00;
+    --writer-text-color: #e8d0a0;
+    --writer-head: #2a1e00;
+    --caret-color: #8b0000;
+}
+
+.aztec-sun-mexico {
+    --background: #1a0800;
+    --text-color: #f8c840;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #120500;
+    --writer-text-color: #f8c840;
+    --writer-head: #2a1000;
+    --caret-color: #c84800;
+}
+
+.mayan-jade-central-america {
+    --background: #001a10;
+    --text-color: #a8e8c8;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #00120a;
+    --writer-text-color: #a8e8c8;
+    --writer-head: #002018;
+    --caret-color: #20c870;
+}
+
+.incan-gold-south-america {
+    --background: #1a1200;
+    --text-color: #f8e878;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #120d00;
+    --writer-text-color: #f8e878;
+    --writer-head: #2a1e00;
+    --caret-color: #d4a000;
+}
+
+.pacific-islander {
+    --background: #001a1a;
+    --text-color: #a8f0e0;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #001212;
+    --writer-text-color: #a8f0e0;
+    --writer-head: #002828;
+    --caret-color: #00c8a8;
+}
+
+.aboriginal-dot {
+    --background: #1a0800;
+    --text-color: #f8c888;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #120500;
+    --writer-text-color: #f8c888;
+    --writer-head: #2a1200;
+    --caret-color: #cc5500;
+}
+
+.deep-ocean {
+    --background: #020d1a;
+    --text-color: #7ad4f0;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #010810;
+    --writer-text-color: #7ad4f0;
+    --writer-head: #041525;
+    --caret-color: #00b4d8;
+}
+
+.coral-reef {
+    --background: #001a20;
+    --text-color: #a8f0e0;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #001218;
+    --writer-text-color: #a8f0e0;
+    --writer-head: #002530;
+    --caret-color: #00e5cc;
+}
+
+.bioluminescence {
+    --background: #000d10;
+    --text-color: #00ffcc;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #000810;
+    --writer-text-color: #00ffcc;
+    --writer-head: #001020;
+    --caret-color: #00e5ff;
+}
+
+.aurora-borealis {
+    --background: #040d14;
+    --text-color: #c8f0ff;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #020810;
+    --writer-text-color: #c8f0ff;
+    --writer-head: #081828;
+    --caret-color: #78ff88;
+}
+
+.midnight-forest {
+    --background: #050f07;
+    --text-color: #a8d8a8;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #030a04;
+    --writer-text-color: #a8d8a8;
+    --writer-head: #0a1a0c;
+    --caret-color: #4caf50;
+}
+
+.cherry-blossom {
+    --background: #fff0f5;
+    --text-color: #5a2d40;
+    --font-family: 'Noto Mono', monospace;
+    --writer-background: #ffe6ef;
+    --writer-text-color: #5a2d40;
+    --writer-head: #ffd0e0;
+    --caret-color: #e91e8c;
+}
+
+.autumn-maple {
+    --background: #1a0a00;
+    --text-color: #f8c878;
+    --font-family: 'JetBrains Mono', monospace;
+    --writer-background: #120600;
+    --writer-text-color: #f8c878;
+    --writer-head: #2a1400;
+    --caret-color: #cc5500;
+}
+
+.winter-frost {
+    --background: #e8f0f8;
+    --text-color: #2a3a4a;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #dce8f5;
+    --writer-text-color: #2a3a4a;
+    --writer-head: #c8d8e8;
+    --caret-color: #5b8db8;
+}
+
+.desert-dunes {
+    --background: #2a1800;
+    --text-color: #e8c888;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #1e1000;
+    --writer-text-color: #e8c888;
+    --writer-head: #382200;
+    --caret-color: #d4872a;
+}
+
+.volcanic-lava {
+    --background: #1a0500;
+    --text-color: #ff8844;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #120300;
+    --writer-text-color: #ff8844;
+    --writer-head: #280800;
+    --caret-color: #ff4400;
+}
+
+.deep-space-nine {
+    --background: #04050f;
+    --text-color: #c9d1e8;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #020308;
+    --writer-text-color: #c9d1e8;
+    --writer-head: #0a0b1a;
+    --caret-color: #9b7fe8;
+}
+
+.nebula {
+    --background: #0f0318;
+    --text-color: #e8c4f4;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #0a0212;
+    --writer-text-color: #e8c4f4;
+    --writer-head: #180530;
+    --caret-color: #d47de8;
+}
+
+.event-horizon {
+    --background: #000000;
+    --text-color: #b8b8c8;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #050505;
+    --writer-text-color: #b8b8c8;
+    --writer-head: #0d0d14;
+    --caret-color: #9060e0;
+}
+
+.mars-colony {
+    --background: #1a0a00;
+    --text-color: #f0c090;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #110600;
+    --writer-text-color: #f0c090;
+    --writer-head: #281000;
+    --caret-color: #e0703a;
+}
+
+.starfield {
+    --background: #000510;
+    --text-color: #d0e8ff;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #000308;
+    --writer-text-color: #d0e8ff;
+    --writer-head: #000a1e;
+    --caret-color: #4a9eff;
+}
+
+.alien-biome {
+    --background: #020d00;
+    --text-color: #a0ff88;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #010800;
+    --writer-text-color: #a0ff88;
+    --writer-head: #051200;
+    --caret-color: #44ff00;
+}
+
+.tron-legacy {
+    --background: #020f1a;
+    --text-color: #a8d8ea;
+    --font-family: 'Orbitron', monospace;
+    --writer-background: #010810;
+    --writer-text-color: #a8d8ea;
+    --writer-head: #081825;
+    --caret-color: #0ff0fc;
+}
+
+.blade-runner {
+    --background: #0a0500;
+    --text-color: #ff9944;
+    --font-family: 'Share Tech Mono', monospace;
+    --writer-background: #060300;
+    --writer-text-color: #ff9944;
+    --writer-head: #140a00;
+    --caret-color: #ff4400;
+}
+
+.dune-arrakis {
+    --background: #1a1200;
+    --text-color: #e8cc88;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #120d00;
+    --writer-text-color: #e8cc88;
+    --writer-head: #2a1e00;
+    --caret-color: #c89820;
+}
+
+.interstellar {
+    --background: #020408;
+    --text-color: #c0d0e8;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #010205;
+    --writer-text-color: #c0d0e8;
+    --writer-head: #05080f;
+    --caret-color: #4488cc;
+}
+
+.vs-code-dark {
+    --background: #1e1e1e;
+    --text-color: #d4d4d4;
+    --font-family: 'Consolas', monospace;
+    --writer-background: #252526;
+    --writer-text-color: #d4d4d4;
+    --writer-head: #333333;
+    --caret-color: #aeafad;
+}
+
+.sublime-text {
+    --background: #272822;
+    --text-color: #f8f8f2;
+    --font-family: 'Consolas', monospace;
+    --writer-background: #1e1e1b;
+    --writer-text-color: #f8f8f2;
+    --writer-head: #33342a;
+    --caret-color: #f8f8f2;
+}
+
+.vim-dark {
+    --background: #1c1c1c;
+    --text-color: #d0d0d0;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #141414;
+    --writer-text-color: #d0d0d0;
+    --writer-head: #262626;
+    --caret-color: #eeeeee;
+}
+
+.emacs-misterioso {
+    --background: #1a1a2e;
+    --text-color: #cccccc;
+    --font-family: 'DejaVu Sans Mono', monospace;
+    --writer-background: #141422;
+    --writer-text-color: #cccccc;
+    --writer-head: #22223a;
+    --caret-color: #6666cc;
+}
+
+.jetbrains-darcula {
+    --background: #2b2b2b;
+    --text-color: #a9b7c6;
+    --font-family: 'JetBrains Mono', monospace;
+    --writer-background: #222222;
+    --writer-text-color: #a9b7c6;
+    --writer-head: #313335;
+    --caret-color: #499cd6;
+}
+
+.xcode-dark {
+    --background: #1c1c1e;
+    --text-color: #ffffff;
+    --font-family: 'SF Mono', monospace;
+    --writer-background: #141416;
+    --writer-text-color: #ffffff;
+    --writer-head: #242426;
+    --caret-color: #4eb0cc;
+}
+
+.notepad-default {
+    --background: #ffffff;
+    --text-color: #000000;
+    --font-family: 'Courier New', monospace;
+    --writer-background: #f5f5f5;
+    --writer-text-color: #000000;
+    --writer-head: #e8e8e8;
+    --caret-color: #000080;
+}
+
+.terminalapp-macos {
+    --background: #000000;
+    --text-color: #ffffff;
+    --font-family: 'Menlo', monospace;
+    --writer-background: #0a0a0a;
+    --writer-text-color: #ffffff;
+    --writer-head: #111111;
+    --caret-color: #25c827;
+}
+
+.windows-console {
+    --background: #0c0c0c;
+    --text-color: #cccccc;
+    --font-family: 'Consolas', monospace;
+    --writer-background: #0c0c0c;
+    --writer-text-color: #cccccc;
+    --writer-head: #1a1a1a;
+    --caret-color: #3399ff;
+}
+
+.hyper-terminal {
+    --background: #000000;
+    --text-color: #ffffff;
+    --font-family: 'Fira Code', monospace;
+    --writer-background: #0a0a0a;
+    --writer-text-color: #ffffff;
+    --writer-head: #111111;
+    --caret-color: #fe0100;
+}
+

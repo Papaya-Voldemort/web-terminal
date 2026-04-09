@@ -1,0 +1,943 @@
+TERMINAL THEMES — 100 TOTAL
+7 values per theme in order:
+  1. background
+  2. text-color
+  3. font-family
+  4. writer-background
+  5. writer-text-color
+  6. writer-head
+  7. caret-color
+════════════════════════════════════════════════════════════
+
+001 · Dracula
+#282a36
+#f8f8f2
+'Fira Code', monospace
+#1e1d2e
+#f8f8f2
+#44475a
+#bd93f9
+
+002 · Nord
+#2e3440
+#d8dee9
+'JetBrains Mono', monospace
+#3b4252
+#e5e9f0
+#434c5e
+#88c0d0
+
+003 · Monokai
+#272822
+#f8f8f2
+'Courier New', monospace
+#1e1f1c
+#f8f8f2
+#3e3d32
+#a6e22e
+
+004 · Solarized Dark
+#002b36
+#839496
+'Inconsolata', monospace
+#073642
+#93a1a1
+#094554
+#268bd2
+
+005 · Tokyo Night
+#1a1b26
+#c0caf5
+'Fira Code', monospace
+#16161e
+#c0caf5
+#292e42
+#7aa2f7
+
+006 · Gruvbox Dark
+#282828
+#ebdbb2
+'JetBrains Mono', monospace
+#1d2021
+#ebdbb2
+#3c3836
+#fabd2f
+
+007 · Catppuccin Mocha
+#1e1e2e
+#cdd6f4
+'Fira Code', monospace
+#181825
+#cdd6f4
+#313244
+#cba6f7
+
+008 · One Dark Pro
+#282c34
+#abb2bf
+'Fira Code', monospace
+#21252b
+#abb2bf
+#3b4048
+#61afef
+
+009 · Rosé Pine
+#191724
+#e0def4
+'IBM Plex Mono', monospace
+#1f1d2e
+#e0def4
+#26233a
+#ebbcba
+
+010 · Everforest Dark
+#272e33
+#d3c6aa
+'Cascadia Code', monospace
+#1e2326
+#d3c6aa
+#2d353b
+#a7c080
+
+011 · Kanagawa
+#1f1f28
+#dcd7ba
+'Sarasa Mono', monospace
+#16161d
+#dcd7ba
+#2a2a37
+#7e9cd8
+
+012 · Ayu Dark
+#0a0e14
+#b3b1ad
+'JetBrains Mono', monospace
+#0d1017
+#b3b1ad
+#131721
+#e6b450
+
+013 · Night Owl
+#011627
+#d6deeb
+'Fira Code', monospace
+#010e1a
+#d6deeb
+#0b2033
+#82aaff
+
+014 · Cobalt2
+#193549
+#ffffff
+'Consolas', monospace
+#0d2137
+#ffffff
+#1a3a50
+#ffc600
+
+015 · Horizon
+#1c1e26
+#d5d8da
+'Fira Code', monospace
+#16171f
+#d5d8da
+#232530
+#e95678
+
+016 · Palenight
+#292d3e
+#a6accd
+'Fira Code', monospace
+#1c1f2b
+#c3cee3
+#32374d
+#82aaff
+
+017 · Iceberg
+#161821
+#c6c8d1
+'Source Code Pro', monospace
+#0f1117
+#c6c8d1
+#1e2132
+#84a0c6
+
+018 · Panda Syntax
+#292a2b
+#e6e6e6
+'Fira Code', monospace
+#1a1b1c
+#e6e6e6
+#333435
+#19f9d8
+
+019 · Spacegray
+#20242a
+#b0b8c8
+'Menlo', monospace
+#16191e
+#b0b8c8
+#282c34
+#5b6e8c
+
+020 · Nightfox
+#192330
+#cdcecf
+'Fira Code', monospace
+#131a24
+#cdcecf
+#212e3f
+#81a1c1
+
+════════════════════════════════════════════════════════════
+— LIGHT THEMES —
+════════════════════════════════════════════════════════════
+
+021 · Solarized Light
+#fdf6e3
+#657b83
+'Inconsolata', monospace
+#eee8d5
+#586e75
+#d9cfb5
+#268bd2
+
+022 · Catppuccin Latte
+#eff1f5
+#4c4f69
+'Fira Code', monospace
+#e6e9ef
+#4c4f69
+#ccd0da
+#1e66f5
+
+023 · Gruvbox Light
+#fbf1c7
+#3c3836
+'JetBrains Mono', monospace
+#f2e5bc
+#3c3836
+#d5c4a1
+#b57614
+
+024 · GitHub Light
+#ffffff
+#24292e
+'SFMono-Regular', monospace
+#f6f8fa
+#24292e
+#e1e4e8
+#0366d6
+
+025 · Papercolor Light
+#eeeeee
+#444444
+'Courier New', monospace
+#e4e4e4
+#444444
+#d0d0d0
+#0087af
+
+026 · Rosé Pine Dawn
+#faf4ed
+#575279
+'IBM Plex Mono', monospace
+#fffaf3
+#575279
+#f2e9e1
+#907aa9
+
+027 · Ayu Light
+#fafafa
+#5c6166
+'JetBrains Mono', monospace
+#f3f3f3
+#5c6166
+#e3e3e3
+#f2ae49
+
+028 · Everforest Light
+#fdf6e3
+#5c6a72
+'Cascadia Code', monospace
+#f0ead4
+#5c6a72
+#e0d8ba
+#8da101
+
+029 · Tomorrow
+#ffffff
+#4d4d4c
+'Menlo', monospace
+#f2f2f2
+#4d4d4c
+#d6d6d6
+#4271ae
+
+030 · Material Light
+#fafafa
+#90a4ae
+'Roboto Mono', monospace
+#eceff1
+#546e7a
+#cfd8dc
+#39adb5
+
+════════════════════════════════════════════════════════════
+— NEON / SYNTHWAVE —
+════════════════════════════════════════════════════════════
+
+031 · Synthwave '84
+#262335
+#ffffff
+'Fira Code', monospace
+#1a1a2e
+#ffffff
+#2d2b55
+#ff7edb
+
+032 · Cyberpunk 2077
+#0d0d1a
+#e0e0ff
+'Share Tech Mono', monospace
+#060610
+#e0e0ff
+#12122a
+#00fff5
+
+033 · Neon Nights
+#0b0c10
+#c5c6c7
+'Orbitron', monospace
+#050607
+#c5c6c7
+#111318
+#66fcf1
+
+034 · Hotline Miami
+#1a0a2e
+#f0f0f0
+'VT323', monospace
+#100620
+#f0f0f0
+#22103a
+#ff6ef7
+
+035 · Retrowave
+#030111
+#d5ccf0
+'Press Start 2P', monospace
+#010008
+#d5ccf0
+#0a0520
+#fc28a8
+
+036 · Outrun
+#000000
+#ff71ce
+'Fira Code', monospace
+#0d0d0d
+#b967ff
+#151515
+#01cdfe
+
+037 · Vaporwave
+#1a0533
+#ffb3de
+'VT323', monospace
+#120326
+#ffe0f7
+#200640
+#05ffa1
+
+038 · Miami Vice
+#0d1b2a
+#e0fbfc
+'Orbitron', monospace
+#081522
+#e0fbfc
+#12253a
+#ee6c4d
+
+039 · Electric Blue
+#000d1a
+#cceeff
+'Fira Code', monospace
+#00070f
+#cceeff
+#001a33
+#0088ff
+
+040 · Ultraviolet
+#0e0020
+#e8c8ff
+'JetBrains Mono', monospace
+#09001a
+#e8c8ff
+#1a0035
+#bf5fff
+
+════════════════════════════════════════════════════════════
+— RETRO / CRT —
+════════════════════════════════════════════════════════════
+
+041 · Matrix Green
+#000000
+#00ff41
+monospace
+#0a0a0a
+#00cc33
+#111111
+#00ff41
+
+042 · Amber CRT
+#0a0800
+#ffb000
+monospace
+#050400
+#ffb000
+#100d00
+#ffd700
+
+043 · IBM Green Phosphor
+#000000
+#33ff33
+'Courier New', monospace
+#0a0a0a
+#00ee00
+#111111
+#55ff55
+
+044 · Apple II
+#000000
+#33ff33
+'Press Start 2P', monospace
+#000000
+#00dd00
+#0a0a0a
+#55ff55
+
+045 · Atari ST
+#000000
+#ffffff
+'Courier New', monospace
+#0a0a0a
+#cccccc
+#111111
+#aaaaaa
+
+046 · DOS Blue
+#000080
+#aaaaaa
+'Perfect DOS VGA', monospace
+#00007a
+#aaaaaa
+#000070
+#ffffff
+
+047 · C64 Petscii
+#40318d
+#7869c4
+'Courier New', monospace
+#352879
+#7869c4
+#2d2070
+#a5a2c3
+
+048 · ZX Spectrum
+#000000
+#cdcdcd
+monospace
+#0a0a0a
+#cdcdcd
+#111111
+#ff0000
+
+049 · Teletext
+#000000
+#ffffff
+monospace
+#000000
+#00ff00
+#000033
+#ffff00
+
+050 · VT100 White
+#000000
+#c0c0c0
+'Courier New', monospace
+#0a0a0a
+#c0c0c0
+#111111
+#ffffff
+
+════════════════════════════════════════════════════════════
+— CULTURAL / REGIONAL —
+════════════════════════════════════════════════════════════
+
+051 · Ukiyo-e (Japanese Woodblock)
+#1a1209
+#e8dcc8
+'Noto Mono', monospace
+#120d06
+#e8dcc8
+#2a1f10
+#c1440e
+
+052 · Zen Garden (Japan)
+#f5f0e8
+#3d3530
+'Noto Mono', monospace
+#ede8e0
+#3d3530
+#d5cfc5
+#5e8c61
+
+053 · Pagoda Red (China)
+#1a0500
+#f5dcc8
+'Noto Mono', monospace
+#110300
+#f5dcc8
+#260a00
+#c0392b
+
+054 · Silk Road (Central Asia)
+#1c1005
+#e8c882
+'Noto Mono', monospace
+#140b03
+#e8c882
+#2a1a08
+#b5860d
+
+055 · Henna (India)
+#1a0a00
+#f0c090
+'Noto Mono', monospace
+#120600
+#f0c090
+#2a1200
+#c0440e
+
+056 · Rangoli (India)
+#0a001a
+#f0c8ff
+'Noto Mono', monospace
+#060010
+#f0c8ff
+#14002a
+#ff44bb
+
+057 · Sahara (North Africa)
+#1a1000
+#f0d888
+'Noto Mono', monospace
+#120b00
+#f0d888
+#2a1e00
+#e8a020
+
+058 · Kente (West Africa)
+#1a0a00
+#ffd040
+'Noto Mono', monospace
+#120600
+#ffd040
+#2a1200
+#c00000
+
+059 · Savanna (East Africa)
+#0f1500
+#d4c888
+'Noto Mono', monospace
+#090e00
+#d4c888
+#181f00
+#c87820
+
+060 · Ndebele (Southern Africa)
+#000000
+#ffffff
+'Noto Mono', monospace
+#0a0a0a
+#ffffff
+#111111
+#e52020
+
+061 · Viking (Norse)
+#0e1520
+#c8d8e8
+'MxPlus IBM VGA', monospace
+#080f18
+#c8d8e8
+#162030
+#7aadcc
+
+062 · Celtic (Ireland/Scotland)
+#0a1a08
+#c8e8c0
+'Noto Mono', monospace
+#060f05
+#c8e8c0
+#102818
+#40a848
+
+063 · Byzantine (Eastern Europe)
+#1a0a1a
+#e8c8e8
+'Noto Mono', monospace
+#120612
+#e8c8e8
+#261426
+#9b59b6
+
+064 · Slavic Folk
+#1a0808
+#f0c8a8
+'Noto Mono', monospace
+#120505
+#f0c8a8
+#2a0e0e
+#c0341d
+
+065 · Ottoman Empire
+#1a1000
+#e8d0a0
+'Noto Mono', monospace
+#120b00
+#e8d0a0
+#2a1e00
+#8b0000
+
+066 · Aztec Sun (Mexico)
+#1a0800
+#f8c840
+'Noto Mono', monospace
+#120500
+#f8c840
+#2a1000
+#c84800
+
+067 · Mayan Jade (Central America)
+#001a10
+#a8e8c8
+'Noto Mono', monospace
+#00120a
+#a8e8c8
+#002018
+#20c870
+
+068 · Incan Gold (South America)
+#1a1200
+#f8e878
+'Noto Mono', monospace
+#120d00
+#f8e878
+#2a1e00
+#d4a000
+
+069 · Pacific Islander
+#001a1a
+#a8f0e0
+'Noto Mono', monospace
+#001212
+#a8f0e0
+#002828
+#00c8a8
+
+070 · Aboriginal Dot
+#1a0800
+#f8c888
+'Noto Mono', monospace
+#120500
+#f8c888
+#2a1200
+#cc5500
+
+════════════════════════════════════════════════════════════
+— NATURE / ENVIRONMENT —
+════════════════════════════════════════════════════════════
+
+071 · Deep Ocean
+#020d1a
+#7ad4f0
+'Fira Code', monospace
+#010810
+#7ad4f0
+#041525
+#00b4d8
+
+072 · Coral Reef
+#001a20
+#a8f0e0
+'Fira Code', monospace
+#001218
+#a8f0e0
+#002530
+#00e5cc
+
+073 · Bioluminescence
+#000d10
+#00ffcc
+'Fira Code', monospace
+#000810
+#00ffcc
+#001020
+#00e5ff
+
+074 · Aurora Borealis
+#040d14
+#c8f0ff
+'Fira Code', monospace
+#020810
+#c8f0ff
+#081828
+#78ff88
+
+075 · Midnight Forest
+#050f07
+#a8d8a8
+'Fira Code', monospace
+#030a04
+#a8d8a8
+#0a1a0c
+#4caf50
+
+076 · Cherry Blossom
+#fff0f5
+#5a2d40
+'Noto Mono', monospace
+#ffe6ef
+#5a2d40
+#ffd0e0
+#e91e8c
+
+077 · Autumn Maple
+#1a0a00
+#f8c878
+'JetBrains Mono', monospace
+#120600
+#f8c878
+#2a1400
+#cc5500
+
+078 · Winter Frost
+#e8f0f8
+#2a3a4a
+'Fira Code', monospace
+#dce8f5
+#2a3a4a
+#c8d8e8
+#5b8db8
+
+079 · Desert Dunes
+#2a1800
+#e8c888
+'Courier New', monospace
+#1e1000
+#e8c888
+#382200
+#d4872a
+
+080 · Volcanic Lava
+#1a0500
+#ff8844
+'Fira Code', monospace
+#120300
+#ff8844
+#280800
+#ff4400
+
+════════════════════════════════════════════════════════════
+— SPACE / SCI-FI —
+════════════════════════════════════════════════════════════
+
+081 · Deep Space Nine
+#04050f
+#c9d1e8
+'Fira Code', monospace
+#020308
+#c9d1e8
+#0a0b1a
+#9b7fe8
+
+082 · Nebula
+#0f0318
+#e8c4f4
+'Fira Code', monospace
+#0a0212
+#e8c4f4
+#180530
+#d47de8
+
+083 · Event Horizon
+#000000
+#b8b8c8
+'Fira Code', monospace
+#050505
+#b8b8c8
+#0d0d14
+#9060e0
+
+084 · Mars Colony
+#1a0a00
+#f0c090
+'Fira Code', monospace
+#110600
+#f0c090
+#281000
+#e0703a
+
+085 · Starfield
+#000510
+#d0e8ff
+'Fira Code', monospace
+#000308
+#d0e8ff
+#000a1e
+#4a9eff
+
+086 · Alien Biome
+#020d00
+#a0ff88
+'Fira Code', monospace
+#010800
+#a0ff88
+#051200
+#44ff00
+
+087 · Tron Legacy
+#020f1a
+#a8d8ea
+'Orbitron', monospace
+#010810
+#a8d8ea
+#081825
+#0ff0fc
+
+088 · Blade Runner
+#0a0500
+#ff9944
+'Share Tech Mono', monospace
+#060300
+#ff9944
+#140a00
+#ff4400
+
+089 · Dune (Arrakis)
+#1a1200
+#e8cc88
+'Courier New', monospace
+#120d00
+#e8cc88
+#2a1e00
+#c89820
+
+090 · Interstellar
+#020408
+#c0d0e8
+'Fira Code', monospace
+#010205
+#c0d0e8
+#05080f
+#4488cc
+
+════════════════════════════════════════════════════════════
+— POPULAR APPS / BRANDS (inspired by) —
+════════════════════════════════════════════════════════════
+
+091 · VS Code Dark+
+#1e1e1e
+#d4d4d4
+'Consolas', monospace
+#252526
+#d4d4d4
+#333333
+#aeafad
+
+092 · Sublime Text
+#272822
+#f8f8f2
+'Consolas', monospace
+#1e1e1b
+#f8f8f2
+#33342a
+#f8f8f2
+
+093 · Vim Dark
+#1c1c1c
+#d0d0d0
+'Courier New', monospace
+#141414
+#d0d0d0
+#262626
+#eeeeee
+
+094 · Emacs Misterioso
+#1a1a2e
+#cccccc
+'DejaVu Sans Mono', monospace
+#141422
+#cccccc
+#22223a
+#6666cc
+
+095 · JetBrains Darcula
+#2b2b2b
+#a9b7c6
+'JetBrains Mono', monospace
+#222222
+#a9b7c6
+#313335
+#499cd6
+
+096 · Xcode Dark
+#1c1c1e
+#ffffff
+'SF Mono', monospace
+#141416
+#ffffff
+#242426
+#4eb0cc
+
+097 · Notepad++ Default
+#ffffff
+#000000
+'Courier New', monospace
+#f5f5f5
+#000000
+#e8e8e8
+#000080
+
+098 · Terminal.app (macOS)
+#000000
+#ffffff
+'Menlo', monospace
+#0a0a0a
+#ffffff
+#111111
+#25c827
+
+099 · Windows Console
+#0c0c0c
+#cccccc
+'Consolas', monospace
+#0c0c0c
+#cccccc
+#1a1a1a
+#3399ff
+
+100 · Hyper Terminal
+#000000
+#ffffff
+'Fira Code', monospace
+#0a0a0a
+#ffffff
+#111111
+#fe0100
+
+════════════════════════════════════════════════════════════
+END OF FILE — 100 THEMES
+Each block: background · text · font · writer-bg · writer-text · writer-head · caret
+════════════════════════════════════════════════════════════

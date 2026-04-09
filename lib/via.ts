@@ -38,12 +38,12 @@ export function initializeViaSystem(commands: Record<string, any>, commandDescri
 function validateSandboxPath(requestedPath: string): string {
     // Resolve the path from root (home directory perspective)
     const resolved = resolvePath("root", requestedPath);
-    
+
     // Ensure the resolved path starts with "root/" (home directory)
     if (!resolved.startsWith("root/") && resolved !== "root") {
         throw new Error(`Access denied: path outside home directory: ${requestedPath}`);
     }
-    
+
     return resolved;
 }
 
@@ -63,15 +63,15 @@ export const viaApi = {
             const validPath = validateSandboxPath(filepath);
             const fsPath = toFsPath(validPath);
             const file = getFile(fsPath);
-            
+
             if (!file) {
                 throw new Error(`File not found: ${filepath}`);
             }
-            
+
             if (!checkPermission(file, USER, "r")) {
                 throw new Error(`Permission denied: cannot read ${filepath}`);
             }
-            
+
             return file.content;
         } catch (error) {
             throw new Error(`viaApi.readFile failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -91,7 +91,7 @@ export const viaApi = {
             const validPath = validateSandboxPath(filepath);
             const fsPath = toFsPath(validPath);
             const existing = getFile(fsPath);
-            
+
             if (existing) {
                 if (!checkPermission(existing, USER, "w")) {
                     throw new Error(`Permission denied: cannot write to ${filepath}`);
@@ -102,7 +102,7 @@ export const viaApi = {
                     permissions: { owner: "rw-", group: "r--", others: "r--" },
                 });
             }
-            
+
             return content.length;
         } catch (error) {
             throw new Error(`viaApi.writeFile failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -120,11 +120,11 @@ export const viaApi = {
             const validPath = validateSandboxPath(dirpath);
             const fsPath = toFsPath(validPath);
             const nodes = getDirectory(fsPath);
-            
+
             if (!nodes) {
                 throw new Error(`Directory not found: ${dirpath}`);
             }
-            
+
             return nodes.map(node => {
                 const suffix = node.type === "dir" ? "/" : "";
                 return node.name + suffix;
@@ -192,7 +192,7 @@ export function registerMarketplaceCommand(
             // Call the function with both input and viaApi
             // Functions can use viaApi as a second parameter if needed
             const fnResult = result.fn(arg, viaApi);
-            
+
             // Handle different return types
             let output = "";
             if (fnResult === undefined || fnResult === null) {
@@ -204,7 +204,7 @@ export function registerMarketplaceCommand(
             } else {
                 output = JSON.stringify(fnResult);
             }
-            
+
             // Always print output, even if it's an empty string (some commands intentionally return nothing)
             if (output !== "") {
                 print(output);
@@ -545,10 +545,40 @@ async function _via(command: string, name: string, file: string, description = "
             return msg;
         }
 
+        // Query for the command
+        const existing = await databases.listDocuments(DB_ID, MKT_ID, [
+            Query.equal("name", name),
+        ]);
+
+        if (existing.documents.length > 0) {
+            const doc = existing.documents[0] as { $id?: string; downloads?: number };
+
+            await databases.updateDocument(DB_ID, MKT_ID, doc.$id || "", {
+                downloads: (doc.downloads || 0) + 1,
+            });
+        }
+
         registerMarketplaceCommand(name, result);
         await persistAddedCommand(name);
 
         const msg = `✓ Added marketplace command "${name}"`;
+        print(msg);
+        return msg;
+    }
+
+    if (command === "explore") {
+        // Query the results
+        const result = await databases.listDocuments(DB_ID, MKT_ID, [
+            Query.orderDesc("downloads"),  // ← Likely need orderDesc, not orderBy
+            Query.limit(10),
+        ]);
+
+        // Format and print the results
+        const lines = result.documents.map((doc: any, i) =>
+            `${i + 1}. ${doc.name} (${doc.downloads} downloads) — ${doc.author}`
+        );
+
+        const msg = ["Top 10 Most Downloaded Commands", "", ...lines].join("\n");
         print(msg);
         return msg;
     }
