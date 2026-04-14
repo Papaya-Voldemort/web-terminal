@@ -10,7 +10,7 @@ import {
     resolvePath,
     toFsPath,
     writeFile,
-    updateLocalStorage,
+    syncFilesystem,
     checkPermission,
     getDirectoryNode,
     normalizePermissions,
@@ -32,82 +32,88 @@ import {
 } from "./state";
 import { _via, registerMarketplaceCommand, loadPersistedCommands, initializeViaSystem } from "./via";
 
+export type CommandResult = {
+  output?: string;
+  error?: string;
+  data?: any;
+};
+
 // First command made prints hello
-function _hello() {
-    print("Hello World!");
-    return "Hello World!";
+function _hello(): CommandResult {
+    const output = {
+        output: "Hello!",
+    }
+
+    return output;
 }
 
 // help prints all of the commands
-function _help() {
+function _help(): CommandResult {
     const lines = Object.entries(commandDescriptions).map(([cmd, desc]) => `  ${cmd} - ${desc}`);
     const out = ["Available commands:", ...lines].join("\n");
-    print(out);
-    return out;
+
+    const output = {
+        output: out,
+    }
+    return output;
 }
 
 // fake simulated ping because I just love Ping Pong
-function _ping() {
-    print("Pong!");
-    return "Pong!";
+function _ping(): CommandResult {
+    const output = "Pong!";
+    return { output };
 }
 
 // Standard echo command implementation to print whats after it
-function _echo(input: string) {
-    print(input);
-    return input;
+function _echo(input: string): CommandResult {
+    return { output: input };
 }
 
 // change the current working directory
-function _cd(dir: string): string {
+function _cd(dir: string): CommandResult {
     const resolved = resolvePath(currentDir, dir);
     const fsPath = toFsPath(resolved);
 
     const dirNode = getDirectoryNode(fsPath);
     if (dirNode === null) {
         const msg = `cd: no such file or directory: ${dir}`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
 
     if (!checkPermission(dirNode, USER, "x")) {
         const msg = `cd: permission denied: ${dir}`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
 
     setCurrentDir(resolved);
     updatePrompt(USER, HOST, resolved);
     const msg = `Changed directory to ${resolved}`;
-    print(msg);
-    return msg;
+    return { output: msg };
 }
 
 // print working directory
-function _pwd(): string {
-    print(currentDir);
-    return currentDir;
+function _pwd(): CommandResult {
+    return { output: currentDir };
 }
 
 // make a new directory
-function _mkdir(dir: string): string {
+function _mkdir(dir: string): CommandResult {
     if (!dir) {
-        print("mkdir: missing operand");
-        return "mkdir: missing operand";
+        const msg = "mkdir: missing operand";
+        return { error: msg };
     }
     const resolved = resolvePath(currentDir, dir);
     const fsPath = toFsPath(resolved);
     makeDirectory(fsPath, USER);
     const msg = `Created ${dir} inside ${currentDir}!`;
-    print(msg);
-    return msg;
+    return { output: msg };
 }
 
 // delete or remove a directory
-function _rmdir(dir: string, sudo = false): string {
+function _rmdir(dir: string, sudo = false): CommandResult {
     if (!dir) {
-        print("rmdir: missing operand");
-        return "rmdir: missing operand";
+        const msg = "rmdir: missing operand";
+        return { error: msg };
     }
     const resolved = resolvePath(currentDir, dir);
     const fsPath = toFsPath(resolved);
@@ -115,33 +121,29 @@ function _rmdir(dir: string, sudo = false): string {
     const dirNode = getDirectoryNode(fsPath);  // ← fetch the node
     if (dirNode === null) {
         const msg = `rmdir: no such directory: ${dir}`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
 
     if (!checkPermission(dirNode, USER, "w") && !sudo) {  // ← use node, not fsPath
         const msg = `rmdir: permission denied: ${dir}`;   // ← dir, not path
-        print(msg);
-        return msg;
+        return { error: msg };
     }
 
     if (dirNode.children.length > 0 && !sudo) {  // ← can use dirNode.children directly now
         const msg = `rmdir: directory not empty: ${dir} (use sudo)`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
 
     removeDirectory(fsPath);
     const msg = `Removed ${dir}!`;
-    print(msg);
-    return msg;
+    return { output: msg };
 }
 
 // make a new file
-function _touch(name: string): string {
+function _touch(name: string): CommandResult {
     if (!name) {
-        print("touch: missing operand");
-        return "touch: missing operand";
+        const msg = "touch: missing operand";
+        return { error: msg };
     }
     const resolved = resolvePath(currentDir, name);
     const fsPath = toFsPath(resolved);
@@ -150,20 +152,18 @@ function _touch(name: string): string {
     const parentPath = parts.join("/");
     if (parentPath && getDirectory(parentPath) === null) {
         const msg = `touch: no such directory: ${name}`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
     makeFile(fsPath, "", USER);
     const msg = `Created ${name} at ${currentDir}.`;
-    print(msg);
-    return msg;
+    return { output: msg };
 }
 
 // delete a file
-function _rm(path: string, sudo = false): string {
+function _rm(path: string, sudo = false): CommandResult {
     if (!path) {
-        print("rm: missing operand");
-        return "rm: missing operand";
+        const msg = "rm: missing operand";
+        return { error: msg };
     }
     const resolved = resolvePath(currentDir, path);
     const fsPath = toFsPath(resolved);
@@ -171,26 +171,23 @@ function _rm(path: string, sudo = false): string {
 
     if (file === null) {
         const msg = `rm: no such file: ${path}`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
 
     if (!checkPermission(file, USER, "w") && !sudo) {
         const msg = `rm: permission denied: ${path}`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
     removeFile(fsPath);
     const msg = `Removed ${path}!`;
-    print(msg);
-    return msg;
+    return { output: msg };
 }
 
 // print the contents of a file
-function _cat(path: string): string {
+function _cat(path: string): CommandResult {
     if (!path) {
-        print("cat: missing operand");
-        return "cat: missing operand";
+        const msg = "cat: missing operand";
+        return { error: msg };
     }
     const resolved = resolvePath(currentDir, path);
     const fsPath = toFsPath(resolved);
@@ -199,69 +196,62 @@ function _cat(path: string): string {
 
     if (dirNode !== null) {
         const msg = `cat: ${path}: Is a directory`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
 
     if (file === null) {
         const msg = `cat: no such file: ${path}`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
 
     if (!checkPermission(file, USER, "r")) {
         const msg = `cat: permission denied: ${path}`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
 
     const msg = file.content;
-    print(msg);
-    return msg;
+    return { output: msg };
 }
 
 // list all items in the directory
-function _ls(path: string): string {
+function _ls(path: string): CommandResult {
     const resolved = path ? resolvePath(currentDir, path) : currentDir;
     const fsPath = toFsPath(resolved);
     const target = getDirectory(fsPath);
     if (target === null) {
         const msg = `ls: no such directory: ${path}`;
-        print(msg);
-        return msg;
+        return { error: msg };
     }
     const msg = target.map((n) => n.name).join("\n") || "(empty)";
-    print(msg);
-    return msg;
+    return { output: msg };
 }
 
 // clear the console
-function _clear() {
+function _clear(): CommandResult {
     clearTerminal();
     const msg = "Cleared the terminal!";
-    print(msg);
-    return msg;
+    return { output: msg };
 }
 
 // move a file
-function _mv(origin: string, target: string): string {
+function _mv(origin: string, target: string): CommandResult {
     if (!origin || !target) {
-        print("mv: missing operand");
-        return "mv: missing operand";
+        const msg = "mv: missing operand";
+        return { error: msg };
     }
     const originResolved = resolvePath(currentDir, origin);
     const originFsPath = toFsPath(originResolved);
     const originFile = getFile(originFsPath);
     if (originFile === null) {
         const msg = `mv: no such file: ${origin}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     if (!checkPermission(originFile, USER, "r") || !checkPermission(originFile, USER, "w")) {
         const msg = `mv: permission denied: ${origin}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     const targetResolved = resolvePath(currentDir, target);
@@ -269,36 +259,37 @@ function _mv(origin: string, target: string): string {
     const targetFile = getFile(targetFsPath);
     if (targetFile !== null) {
         const msg = `mv: ${target} already exists`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     makeFile(targetFsPath, originFile.content, originFile.owner, originFile);
     removeFile(originFsPath);
     const msg = `Moved ${origin} to ${target}`;
-    print(msg);
-    return msg;
+    
+    return { output: msg };
 }
 
 // copy a file
-function _cp(origin: string, target: string): string {
+function _cp(origin: string, target: string): CommandResult {
     if (!origin || !target) {
-        print("cp: missing operand");
-        return "cp: missing operand";
+        const msg = "cp: missing operand";
+        
+        return { error: msg };
     }
     const originResolved = resolvePath(currentDir, origin);
     const originFsPath = toFsPath(originResolved);
     const originFile = getFile(originFsPath);
     if (originFile === null) {
         const msg = `cp: no such file: ${origin}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     if (!checkPermission(originFile, USER, "r")) {
         const msg = `cp: permission denied: ${target}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     const targetResolved = resolvePath(currentDir, target);
@@ -306,20 +297,21 @@ function _cp(origin: string, target: string): string {
     const targetFile = getFile(targetFsPath);
     if (targetFile !== null) {
         const msg = `cp: ${target} already exists`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
     makeFile(targetFsPath, originFile.content, originFile.owner, originFile);
     const msg = `Copied ${origin} to ${target}`;
-    print(msg);
-    return msg;
+    
+    return { output: msg };
 }
 
 // Complex Nano implentation for writing to files
-function _write(path: string, sudo = false): string {
+function _write(path: string, sudo = false): CommandResult {
     if (!path) {
-        print("write: missing operand");
-        return "write: missing operand";
+        const msg = "write: missing operand";
+        
+        return { error: msg };
     }
     const resolved = resolvePath(currentDir, path);
     const fsPath = toFsPath(resolved);
@@ -327,47 +319,48 @@ function _write(path: string, sudo = false): string {
 
     if (file === null) {
         const msg = `write: no such file: ${path} — use touch to create it first`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     if (!checkPermission(file, USER, "w") && !sudo) {
         const msg = `write: permission denied: ${path}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
 
     openEditor(fsPath, path, file.content);
-    return "";
+    return { output: "" };
 }
 
 // check current user (kind of useless)
-function _who() {
+function _who(): CommandResult {
     const output = USER_EMAIL ? `${USER} <${USER_EMAIL}>` : USER;
-    print(output);
-    return output;
+    
+    return { output };
 }
 
 // Print current date
-function _date(): string {
+function _date(): CommandResult {
     const msg = new Date().toLocaleDateString();
-    print(msg);
-    return msg;
+    
+    return { output: msg };
 }
 
 // print command history
-function _history() {
-    print(JSON.stringify(history));
-    return JSON.stringify(history);
+function _history(): CommandResult {
+    const msg = JSON.stringify(history);
+    
+    return { output: msg };
 }
 
 // Search within a file
-function _grep(search: string, path: string): string {
+function _grep(search: string, path: string): CommandResult {
     if (!search || !path) {
         const msg = "grep: missing operand";
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     const resolved = resolvePath(currentDir, path);
@@ -376,28 +369,29 @@ function _grep(search: string, path: string): string {
 
     if (target === null) {
         const msg = `grep: no such file: ${path}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     if (!checkPermission(target, USER, "r")) {
         const msg = `grep: permission denied: ${path}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     const lines = target.content.split("\n");
     const matches = lines.filter((line) => line.includes(search));
     const msg = matches.length ? matches.join("\n") : "";
-    print(msg);
-    return msg;
+    
+    return { output: msg };
 }
 
 // Print properites of a file
-function _stat(path: string): string {
+function _stat(path: string): CommandResult {
     if (!path) {
-        print("stat: missing operand");
-        return "stat: missing operand";
+        const msg = "stat: missing operand";
+        
+        return { error: msg };
     }
     const resolved = resolvePath(currentDir, path);
     const fsPath = toFsPath(resolved);
@@ -405,8 +399,8 @@ function _stat(path: string): string {
     const target = getFile(fsPath) ?? getDirectoryNode(fsPath);
     if (target === null) {
         const msg = `stat: no such file or directory: ${path}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     const msg = JSON.stringify({
@@ -421,16 +415,17 @@ function _stat(path: string): string {
         ...(target.type === "file" && { size: target.size }),
     }, null, 2);
 
-    print(msg);
-    return msg;
+    
+    return { output: msg };
 }
 
 // Change the owner of a file
-function _chown(args: string, sudo = false): string {
+function _chown(args: string, sudo = false): CommandResult {
     const [newOwner, path] = args.split(" ").filter(Boolean);
     if (!newOwner || !path) {
-        print("chown: missing operand");
-        return "chown: missing operand";
+        const msg = "chown: missing operand";
+        
+        return { error: msg };
     }
 
     const resolved = resolvePath(currentDir, path);
@@ -439,14 +434,14 @@ function _chown(args: string, sudo = false): string {
 
     if (target === null) {
         const msg = `chown: no such file or directory: ${path}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     if (USER !== "root" && !sudo) {
         const msg = `chown: permission denied: ${path}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     // Support "owner:group" or just "owner"
@@ -454,20 +449,21 @@ function _chown(args: string, sudo = false): string {
     target.owner = owner;
     if (group) target.group = group;
 
-    updateLocalStorage();
+    syncFilesystem();
     const msg = group
         ? `Changed owner of ${path} to ${owner}:${group}`
         : `Changed owner of ${path} to ${owner}`;
-    print(msg);
-    return msg;
+    
+    return { output: msg };
 }
 
 // change write and read permisions of a file
-function _chmod(args: string, sudo = false): string {
+function _chmod(args: string, sudo = false): CommandResult {
     const [mode, path] = args.split(" ").filter(Boolean);
     if (!mode || !path) {
-        print("chmod: missing operand");
-        return "chmod: missing operand";
+        const msg = "chmod: missing operand";
+        
+        return { error: msg };
     }
 
     const resolved = resolvePath(currentDir, path);
@@ -476,14 +472,14 @@ function _chmod(args: string, sudo = false): string {
 
     if (target === null) {
         const msg = `chmod: no such file or directory: ${path}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     if (target.owner !== USER && !sudo) {
         const msg = `chmod: permission denied: ${path}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     let perms = normalizePermissions(target.permissions);
@@ -501,8 +497,8 @@ function _chmod(args: string, sudo = false): string {
         const symbolic = mode.match(/^([ugoa]+)([+\-=])([rwx]*)$/);
         if (!symbolic) {
             const msg = `chmod: invalid mode: ${mode}`;
-            print(msg);
-            return msg;
+            
+            return { error: msg };
         }
 
         const [, who, op, bits] = symbolic as [string, string, string, string];
@@ -534,16 +530,16 @@ function _chmod(args: string, sudo = false): string {
     }
 
     target.permissions = perms;
-    updateLocalStorage();
+    syncFilesystem();
     const msg = `Changed permissions of ${path} to ${JSON.stringify(perms)}`;
-    print(msg);
-    return msg;
+    
+    return { output: msg };
 }
 
 // print the first part of a file (use -n flag for extra control)
 // Example Use:
 // `head -n 15 [file]` to print the first 15 lines
-function _head(args: string): string {
+function _head(args: string): CommandResult {
     const parts = args.split(" ");
     let n = 10;
     let path = parts[0];
@@ -554,8 +550,9 @@ function _head(args: string): string {
     }
 
     if (!path) {
-        print("head: missing operand");
-        return "head: missing operand";
+        const msg = "head: missing operand";
+        
+        return { error: msg };
     }
 
 
@@ -564,17 +561,17 @@ function _head(args: string): string {
 
     if (!file) {
         const msg = `head: no such file: ${path}`;
-        print(msg);
-        return msg;
+        
+        return { error: msg };
     }
 
     const msg = file.content.split("\n").slice(0, n).join("\n");
-    print(msg);
-    return msg;
+    
+    return { output: msg };
 }
 
 // Same as head pretty much just this time its the end of the file!
-function _tail(args: string): string {
+function _tail(args: string): CommandResult {
     const parts = args.split(" ");
     let n = 10;
     let path = parts[0];
@@ -585,8 +582,9 @@ function _tail(args: string): string {
     }
 
     if (!path) {
-        print("tail: missing operand");
-        return "tail: missing operand";
+        const msg = "tail: missing operand";
+        
+        return { error: msg };
     }
 
     const resolved = resolvePath(currentDir, path);
@@ -594,15 +592,16 @@ function _tail(args: string): string {
 
     if (!file) {
         const msg = `tail: no such file: ${path}`;
-        print(msg); return msg;
+        
+        return { error: msg };
     }
 
     const msg = file.content.split("\n").slice(-n).join("\n");
-    print(msg);
-    return msg;
+    
+    return { output: msg };
 }
 
-function _theme(theme: string): string {
+function _theme(theme: string): CommandResult {
     const themes = [
         "light",
         "dark",
@@ -707,8 +706,8 @@ function _theme(theme: string): string {
         const finalTheme = theme.replace(/ /g, "-");
         changeTheme(finalTheme);
         const msg = `theme: updated theme to ${theme} mode`;
-        print(msg);
-        return msg;
+        
+        return { output: msg };
     };
     if (theme === "help" || theme === "") {
         // Pretty print themes in columns
@@ -732,12 +731,22 @@ function _theme(theme: string): string {
         lines.push("Usage: theme <theme-name>");
         
         const output = lines.join("\n");
-        print(output);
-        return output;
+        
+        return { output };
     }
-    print("theme: option not found");
-    return ("theme: option not found");
+    const msg = "theme: option not found";
+    
+    return { error: msg };
 }
+
+function _judge(): CommandResult {
+    const output = {
+        output: `Please visit the judging form: https://forms.fillout.com/t/fHciQ7GPGous`,
+        link: "https://forms.fillout.com/t/fHciQ7GPGous"
+    }
+
+    return output;
+};
 
 export const commandDescriptions: Record<string, string> = {
     hello: "Prints Hello World!",
@@ -768,10 +777,11 @@ export const commandDescriptions: Record<string, string> = {
     via: "Upload a function to the database (usage: via <name> <code>)",
     head: "Print the first lines of a file :)",
     tail: "Print the last lines of a file ;)",
-    theme: "Change the theme of the terminal"
+    theme: "Change the theme of the terminal",
+    judge: "Open a judgment panel for the project!"
 };
 
-export type Command = (arg?: string, sudo?: boolean) => string;
+export type Command = (arg?: string, sudo?: boolean) => CommandResult;
 
 export const commands: Partial<Record<string, Command>> = {
     hello: () => _hello(),
@@ -798,11 +808,11 @@ export const commands: Partial<Record<string, Command>> = {
     write: (arg = "", sudo = false) => _write(arg, sudo),
     login: () => {
         loginWithGoogle();
-        return "";
+        return { output: "" };
     },
     logout: () => {
         logout();
-        return "";
+        return { output: "" };
     },
     who: () => _who(),
     date: () => _date(),
@@ -822,6 +832,7 @@ export const commands: Partial<Record<string, Command>> = {
     head: (arg = "") => _head(arg),
     tail: (arg = "") => _tail(arg),
     theme: (arg = "") => _theme(arg),
+    judge: () => _judge(),
 };
 
 // Initialize VIA system with command registries

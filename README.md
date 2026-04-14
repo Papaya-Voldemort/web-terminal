@@ -3,10 +3,13 @@
 
 > Web Terminal Cloud Out Now
 
+> Judge the project here: [Form Link](https://forms.fillout.com/t/fHciQ7GPGous)
+
 
 ## AI Disclaimer
 Most comments and some helper functions were written by an AI tool. No autocomplete was used because it is annoying for me.
 Anything made by AI other than comments is documented in the codebase.
+In the middle of this project I ended up disabling all of the AI features and most is no **Human Written**!
 
 ## Commands
 
@@ -35,6 +38,11 @@ Anything made by AI other than comments is documented in the codebase.
 - `stat <path>` — Displays metadata for a file or directory
 - `chown <owner[:group]> <path>` — Changes owner and optional group of a node
 - `chmod <mode> <path>` — Changes permissions using symbolic or numeric mode
+- `via <command>` - Full Package Manager
+- `head <lines>` - Print the begining of a file
+- `tail <lines>` - Print the end of a file
+- `theme <theme>` - Switch to one of our 95+ built in themes
+- `judge` - See the judge link
 
 ## File overview
 - `app.ts` — boots the terminal UI, handles command input, history navigation, prompt updates, and loads the filesystem.
@@ -56,7 +64,8 @@ Anything made by AI other than comments is documented in the codebase.
 - `makeDirectory(path, owner, metadata)` — now accepts optional metadata so directories can be created with custom permission settings.
 
 ## Future Plans
-Add every command inside of `COMMANDS_100.md`.
+- Make version 2 as a full kernal
+- Make version 3 a full GUI on top of the kernal
 
 To install dependencies:
 

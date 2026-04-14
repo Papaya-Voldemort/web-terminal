@@ -3,7 +3,7 @@ These are basic notes to help remember things lol
 
 ## Whats done this update:
 - Download count for via functions
-- `via browse` to see the top downloaded commands
+- `via explore` to see the top downloaded commands
 - `head` and `tail` added
 - `theme` command added
 

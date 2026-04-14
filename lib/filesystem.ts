@@ -1,4 +1,33 @@
 import { account, databases, DB_ID, COL_ID, MKT_ID, Permission, Role, Query, ID } from "./appwrite";
+import { openDB } from "idb";
+
+const dbPromise = openDB("fs-local", 1, {
+  upgrade(db) {
+    db.createObjectStore("state");
+  },
+});
+
+export async function saveLocalFS(fileSystem: FSNode[]) {
+  const db = await dbPromise;
+  await db.put("state", JSON.stringify(fileSystem), "fs");
+}
+
+export async function loadLocalFS(): Promise<FSNode[] | null> {
+  const db = await dbPromise;
+
+  const data = await db.get("state", "fs");
+
+  return data ? JSON.parse(data) : null;
+};
+
+let saveTimer: any;
+
+export function queueSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    saveLocalFS(fileSystem);
+  }, 200);
+}
 
 export type Permissions = {
   owner: "rwx" | "rw-" | "r--" | "r-x" | "---" | string; // or use a bitmask number like 0o755
@@ -121,7 +150,7 @@ export function getDirectory(path: string): FSNode[] | null {
       const found = level.find((n) => n.name === part && n.type === "dir") as FSDir | undefined;
       if (found) {
         touchMetadata(found, { accessed: true, modified: false });
-        updateLocalStorage();
+        syncFilesystem();
       }
       return found?.children ?? null;
     }, fileSystem);
@@ -135,7 +164,7 @@ export function getFile(path: string): FSFile | null {
   const file = parentDir.find((n) => n.name === fileName && n.type === "file") as FSFile | undefined;
   if (file) {
     touchMetadata(file, { accessed: true, modified: false });
-    updateLocalStorage();
+    syncFilesystem();
   }
   return file ?? null;
 }
@@ -160,7 +189,7 @@ export function toFsPath(resolvedPath: string): string {
   return resolvedPath === "~" ? ROOT_KEY : resolvedPath;
 }
 
-export async function updateLocalStorage() {
+export async function syncFilesystem() {
   const user = await account.get().catch(() => null);
   if (user) {
     clearTimeout(saveTimeout);
@@ -185,7 +214,7 @@ export async function updateLocalStorage() {
       }
     }, 500);
   } else {
-    localStorage.setItem("fileSystem", JSON.stringify(fileSystem));
+    queueSave();
   }
 }
 
@@ -206,7 +235,7 @@ export function makeDirectory(path: string, owner = "hacker", metadata: Partial<
       level = newDir.children;
     }
   }
-  updateLocalStorage();
+  syncFilesystem();
 }
 
 export function makeFile(path: string, content: string, owner = "hacker", metadata: Partial<FSBase> = {}) {
@@ -240,7 +269,7 @@ export function makeFile(path: string, content: string, owner = "hacker", metada
     level.push(fileMeta);
   }
 
-  updateLocalStorage();
+  syncFilesystem();
 }
 
 function removeNode(fsPath: string, type: "file" | "dir") {
@@ -255,7 +284,7 @@ function removeNode(fsPath: string, type: "file" | "dir") {
   parentLevel.splice(idx, 1);
   const parentNode = parentPath ? getDirectoryNode(parentPath) : null;
   if (parentNode) touchMetadata(parentNode, { modified: true, accessed: true });
-  updateLocalStorage();
+  syncFilesystem();
   return true;
 }
 
@@ -280,39 +309,39 @@ export function writeFile(path: string, content: string) {
   const parentPath = parts.join("/");
   const parentNode = parentPath ? getDirectoryNode(parentPath) : null;
   if (parentNode) touchMetadata(parentNode, { modified: true, accessed: true });
-  updateLocalStorage();
+  syncFilesystem();
   return true;
 }
 
-export function saveSync() {
-  localStorage.setItem("fileSystem", JSON.stringify(fileSystem));
+export async function saveSync() {
+  queueSave();
 }
 
-export function seedFilesystem() {
+export function seedFilesystem(username: string = "root") {
   if (fileSystem.length > 0) return;
 
   const parts = (path: string) => path.split("/").filter(Boolean);
 
   const dirs = [
-    "root/documents",
-    "root/downloads",
-    "root/pictures",
-    "root/projects",
-    "root/.config",
-    "root/.ssh",
+    `${username}/documents`,
+    `${username}/downloads`,
+    `${username}/pictures`,
+    `${username}/projects`,
+    `${username}/.config`,
+    `${username}/.ssh`,
   ];
 
   const files: [string, string, string, Partial<FSBase>][] = [
-    ["root/.bashrc", 'export PATH="$HOME/.local/bin:$PATH"\nalias ll="ls -lah"', "root", {
+    [`${username}/.bashrc`, 'export PATH="$HOME/.local/bin:$PATH"\nalias ll="ls -lah"', username, {
       permissions: { owner: "rw-", group: "r--", others: "r--" }
     }],
-    ["root/.profile", 'if [ -f ~/.bashrc ]; then . ~/.bashrc; fi', "root", {
+    [`${username}/.profile`, 'if [ -f ~/.bashrc ]; then . ~/.bashrc; fi', username, {
       permissions: { owner: "rw-", group: "r--", others: "r--" }
     }],
-    ["root/.config/.commands", "", "root", {
+    [`${username}/.config/.commands`, "", username, {
       permissions: { owner: "rw-", group: "r--", others: "r--" }
     }],
-    ["root/.config/.via", "VIA-SIGNED=false", "root", {
+    [`${username}/.config/.via`, "VIA-SIGNED=false", username, {
       permissions: { owner: "rw-", group: "r--", others: "r--" }
     }]
   ];
@@ -367,9 +396,9 @@ export async function loadFilesystem() {
       docExists = true;
       return { name: user.name || user.email || "hacker", email: user.email || "" };
     } catch {
-      const local = localStorage.getItem("fileSystem");
-      fileSystem = local ? JSON.parse(local) : [];
-      seedFilesystem();
+      fileSystem = (await loadLocalFS()) ?? [];
+      const username = user.name || user.email || "hacker";
+      seedFilesystem(username);
       await databases.createDocument(
         DB_ID,
         COL_ID,
@@ -382,14 +411,20 @@ export async function loadFilesystem() {
         ]
       );
       docExists = true;
-      localStorage.removeItem("fileSystem");
-      return { name: user.name || user.email || "hacker", email: user.email || "" };
+      const db = await dbPromise;
+      await db.delete("state", "fs");
+      return { name: username, email: user.email || "" };
     }
   }
 
-  const local = localStorage.getItem("fileSystem");
-  fileSystem = local ? JSON.parse(local) : [];
-  seedFilesystem();
+  const local = await loadLocalFS();
+
+  if (local) {
+    fileSystem = local;
+  } else {
+    fileSystem = [];
+    seedFilesystem();
+  }
   return { name: "hacker", email: "" };
 }
 
@@ -482,7 +517,7 @@ export async function addFunction(name: string): Promise<{ fn: Function; descrip
 
   try {
     const fn = new Function(`return ${code}`)();
-    
+
     // Handle both function and object with run method
     let executableFn: Function | null = null;
     if (typeof fn === "function") {
@@ -491,9 +526,9 @@ export async function addFunction(name: string): Promise<{ fn: Function; descrip
       // If it's an object with a run method, wrap it
       executableFn = (input: string) => fn.run(input);
     }
-    
+
     if (!executableFn) return null;
-    
+
     return {
       fn: executableFn,
       description: typeof doc.description === "string" ? doc.description : undefined,

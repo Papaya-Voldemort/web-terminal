@@ -14,6 +14,7 @@ import {
   setUserEmail,
   setCurrentUser,
 } from "./lib/state";
+import { execute } from "./lib/kernal"; 
 
 updatePrompt(USER, HOST, currentDir);
 
@@ -38,7 +39,7 @@ input.addEventListener("keydown", (e) => {
   pushHistory(value);
   resetHistoryIndex();
 
-  print(`${USER}@${HOST} ${currentDir} $ ${value}`);
+  execute(value, print); input.innerText = "";
 
   const parts = value.split(" ");
   let sudo = false;
@@ -80,3 +81,5 @@ document.addEventListener("click", () => {
   updatePrompt(USER, HOST, currentDir);
   print("Welcome! Type 'help' for commands.");
 })();
+
+// TODO: Implement API in kernal so you can actually see commands again lol
