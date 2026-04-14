@@ -42,25 +42,7 @@ input.addEventListener("keydown", (e) => {
   // Print the command prompt with the command before executing
   print(`${USER}@${HOST} ${currentDir} $ ${value}`);
 
-  execute(value, print); input.innerText = "";
-
-  const parts = value.split(" ");
-  let sudo = false;
-  if (parts[0] === "sudo") {
-    sudo = true;
-    parts.shift();
-  }
-
-  const [cmd, ...rest] = parts;
-  const arg = rest.join(" ");
-  const handler = commands[cmd];
-
-  if (handler) {
-    handler(arg, sudo);
-  } else {
-    print(`Unknown command: ${cmd}`);
-  }
-
+  execute(value, print);
   input.innerText = "";
 });
 
