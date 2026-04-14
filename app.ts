@@ -39,6 +39,9 @@ input.addEventListener("keydown", (e) => {
   pushHistory(value);
   resetHistoryIndex();
 
+  // Print the command prompt with the command before executing
+  print(`${USER}@${HOST} ${currentDir} $ ${value}`);
+
   execute(value, print); input.innerText = "";
 
   const parts = value.split(" ");
@@ -80,6 +83,7 @@ document.addEventListener("click", () => {
   await loadPersistedCommands();
   updatePrompt(USER, HOST, currentDir);
   print("Welcome! Type 'help' for commands.");
+  print("Judges run 'judge' for a judging menu to help me improve!");
 })();
 
 // TODO: Implement API in kernal so you can actually see commands again lol
