@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Web Terminal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cascadia+Code:wght@400;600&family=DejaVu+Sans+Mono&family=Fira+Code:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&family=Inconsolata:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Noto+Mono:wght@400&family=Noto+Sans+Mono:wght@400;500;600&family=Orbitron:wght@400;700;900&family=Press+Start+2P&family=Roboto+Mono:wght@400;500;600;700&family=Sarasa+Mono+SC:wght@400;600&family=Share+Tech+Mono&family=Source+Code+Pro:wght@400;600;700&family=VT323:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+
+<body>
+    <div id="container">
+        <div id="terminal"></div>
+        <div id="inputRow">
+            <span id="workingDir">hacker@nest ~ $</span>
+            <span id="input" contenteditable="true" spellcheck="false"></span>
+        </div>
+    </div>
+    <script type="module" src="static/app.ts"></script>
+</body>
+
+</html>

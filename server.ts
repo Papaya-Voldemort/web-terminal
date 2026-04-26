@@ -1,6 +1,6 @@
 /// <reference types="bun" />
 
-const index = Bun.file("./static/index.html");
+const index = Bun.file("./index.html");
 
 Bun.serve({
   port: 3000,
