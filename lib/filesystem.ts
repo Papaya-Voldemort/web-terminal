@@ -1,4 +1,4 @@
-import { account, databases, DB_ID, COL_ID, MKT_ID, Permission, Role, Query, ID } from "./appwrite";
+import { account, databases, DB_ID, COL_ID, MKT_ID, Permission, Role, Query, ID } from "./appwrite.ts";
 import { openDB } from "idb";
 
 const dbPromise = openDB("fs-local", 1, {

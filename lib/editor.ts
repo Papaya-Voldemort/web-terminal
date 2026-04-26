@@ -1,5 +1,5 @@
-import { terminal, input, print } from "./dom";
-import { writeFile } from "./filesystem";
+import { terminal, input, print } from "./dom.ts";
+import { writeFile } from "./filesystem.ts";
 
 export function openEditor(fsPath: string, displayPath: string, initialContent: string) {
   const container = terminal.parentElement!;

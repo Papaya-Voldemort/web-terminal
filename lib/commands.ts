@@ -1,5 +1,5 @@
-import { clearTerminal, print, updatePrompt, changeTheme } from "./dom";
-import { loginWithGoogle, logout } from "./auth";
+import { clearTerminal, print, updatePrompt, changeTheme } from "./dom.ts";
+import { loginWithGoogle, logout } from "./auth.ts";
 import {
     getDirectory,
     getFile,
@@ -17,8 +17,8 @@ import {
     makeFunction,
     addFunction,
     type Permissions,
-} from "./filesystem";
-import { openEditor } from "./editor";
+} from "./filesystem.ts";
+import { openEditor } from "./editor.ts";
 import {
     HOST,
     USER,
@@ -29,13 +29,15 @@ import {
     setUser,
     setUserEmail,
     isSignedIn,
-} from "./state";
-import { _via, registerMarketplaceCommand, loadPersistedCommands, initializeViaSystem } from "./via";
+} from "./state.ts";
+import { _via, registerMarketplaceCommand, loadPersistedCommands, initializeViaSystem } from "./via.ts";
+import { version } from "bun";
+import { callAI } from "./helpers.ts";
 
 export type CommandResult = {
-  output?: string;
-  error?: string;
-  data?: any;
+    output?: string;
+    error?: string;
+    data?: any;
 };
 
 // First command made prints hello
@@ -227,9 +229,17 @@ function _ls(path: string): CommandResult {
 }
 
 // clear the console
-function _clear(): CommandResult {
-    clearTerminal();
-    const msg = "Cleared the terminal!";
+function _clear(arg: string): CommandResult {
+    let msg;
+    if (arg.trim() === "history") {
+        history.length = 0;
+        msg = "Cleared terminal history!";
+    }
+    else {
+        clearTerminal();
+        msg = "Cleared the terminal!";
+    }
+
     return { output: msg };
 }
 
@@ -244,13 +254,13 @@ function _mv(origin: string, target: string): CommandResult {
     const originFile = getFile(originFsPath);
     if (originFile === null) {
         const msg = `mv: no such file: ${origin}`;
-        
+
         return { error: msg };
     }
 
     if (!checkPermission(originFile, USER, "r") || !checkPermission(originFile, USER, "w")) {
         const msg = `mv: permission denied: ${origin}`;
-        
+
         return { error: msg };
     }
 
@@ -259,14 +269,14 @@ function _mv(origin: string, target: string): CommandResult {
     const targetFile = getFile(targetFsPath);
     if (targetFile !== null) {
         const msg = `mv: ${target} already exists`;
-        
+
         return { error: msg };
     }
 
     makeFile(targetFsPath, originFile.content, originFile.owner, originFile);
     removeFile(originFsPath);
     const msg = `Moved ${origin} to ${target}`;
-    
+
     return { output: msg };
 }
 
@@ -274,7 +284,7 @@ function _mv(origin: string, target: string): CommandResult {
 function _cp(origin: string, target: string): CommandResult {
     if (!origin || !target) {
         const msg = "cp: missing operand";
-        
+
         return { error: msg };
     }
     const originResolved = resolvePath(currentDir, origin);
@@ -282,13 +292,13 @@ function _cp(origin: string, target: string): CommandResult {
     const originFile = getFile(originFsPath);
     if (originFile === null) {
         const msg = `cp: no such file: ${origin}`;
-        
+
         return { error: msg };
     }
 
     if (!checkPermission(originFile, USER, "r")) {
         const msg = `cp: permission denied: ${target}`;
-        
+
         return { error: msg };
     }
 
@@ -297,12 +307,12 @@ function _cp(origin: string, target: string): CommandResult {
     const targetFile = getFile(targetFsPath);
     if (targetFile !== null) {
         const msg = `cp: ${target} already exists`;
-        
+
         return { error: msg };
     }
     makeFile(targetFsPath, originFile.content, originFile.owner, originFile);
     const msg = `Copied ${origin} to ${target}`;
-    
+
     return { output: msg };
 }
 
@@ -310,7 +320,7 @@ function _cp(origin: string, target: string): CommandResult {
 function _write(path: string, sudo = false): CommandResult {
     if (!path) {
         const msg = "write: missing operand";
-        
+
         return { error: msg };
     }
     const resolved = resolvePath(currentDir, path);
@@ -319,13 +329,13 @@ function _write(path: string, sudo = false): CommandResult {
 
     if (file === null) {
         const msg = `write: no such file: ${path} — use touch to create it first`;
-        
+
         return { error: msg };
     }
 
     if (!checkPermission(file, USER, "w") && !sudo) {
         const msg = `write: permission denied: ${path}`;
-        
+
         return { error: msg };
     }
 
@@ -337,21 +347,21 @@ function _write(path: string, sudo = false): CommandResult {
 // check current user (kind of useless)
 function _who(): CommandResult {
     const output = USER_EMAIL ? `${USER} <${USER_EMAIL}>` : USER;
-    
+
     return { output };
 }
 
 // Print current date
 function _date(): CommandResult {
     const msg = new Date().toLocaleDateString();
-    
+
     return { output: msg };
 }
 
 // print command history
 function _history(): CommandResult {
     const msg = JSON.stringify(history);
-    
+
     return { output: msg };
 }
 
@@ -359,7 +369,7 @@ function _history(): CommandResult {
 function _grep(search: string, path: string): CommandResult {
     if (!search || !path) {
         const msg = "grep: missing operand";
-        
+
         return { error: msg };
     }
 
@@ -369,20 +379,20 @@ function _grep(search: string, path: string): CommandResult {
 
     if (target === null) {
         const msg = `grep: no such file: ${path}`;
-        
+
         return { error: msg };
     }
 
     if (!checkPermission(target, USER, "r")) {
         const msg = `grep: permission denied: ${path}`;
-        
+
         return { error: msg };
     }
 
     const lines = target.content.split("\n");
     const matches = lines.filter((line) => line.includes(search));
     const msg = matches.length ? matches.join("\n") : "";
-    
+
     return { output: msg };
 }
 
@@ -390,7 +400,7 @@ function _grep(search: string, path: string): CommandResult {
 function _stat(path: string): CommandResult {
     if (!path) {
         const msg = "stat: missing operand";
-        
+
         return { error: msg };
     }
     const resolved = resolvePath(currentDir, path);
@@ -399,7 +409,7 @@ function _stat(path: string): CommandResult {
     const target = getFile(fsPath) ?? getDirectoryNode(fsPath);
     if (target === null) {
         const msg = `stat: no such file or directory: ${path}`;
-        
+
         return { error: msg };
     }
 
@@ -415,7 +425,7 @@ function _stat(path: string): CommandResult {
         ...(target.type === "file" && { size: target.size }),
     }, null, 2);
 
-    
+
     return { output: msg };
 }
 
@@ -424,7 +434,7 @@ function _chown(args: string, sudo = false): CommandResult {
     const [newOwner, path] = args.split(" ").filter(Boolean);
     if (!newOwner || !path) {
         const msg = "chown: missing operand";
-        
+
         return { error: msg };
     }
 
@@ -434,13 +444,13 @@ function _chown(args: string, sudo = false): CommandResult {
 
     if (target === null) {
         const msg = `chown: no such file or directory: ${path}`;
-        
+
         return { error: msg };
     }
 
     if (USER !== "root" && !sudo) {
         const msg = `chown: permission denied: ${path}`;
-        
+
         return { error: msg };
     }
 
@@ -453,7 +463,7 @@ function _chown(args: string, sudo = false): CommandResult {
     const msg = group
         ? `Changed owner of ${path} to ${owner}:${group}`
         : `Changed owner of ${path} to ${owner}`;
-    
+
     return { output: msg };
 }
 
@@ -462,7 +472,7 @@ function _chmod(args: string, sudo = false): CommandResult {
     const [mode, path] = args.split(" ").filter(Boolean);
     if (!mode || !path) {
         const msg = "chmod: missing operand";
-        
+
         return { error: msg };
     }
 
@@ -472,13 +482,13 @@ function _chmod(args: string, sudo = false): CommandResult {
 
     if (target === null) {
         const msg = `chmod: no such file or directory: ${path}`;
-        
+
         return { error: msg };
     }
 
     if (target.owner !== USER && !sudo) {
         const msg = `chmod: permission denied: ${path}`;
-        
+
         return { error: msg };
     }
 
@@ -497,7 +507,7 @@ function _chmod(args: string, sudo = false): CommandResult {
         const symbolic = mode.match(/^([ugoa]+)([+\-=])([rwx]*)$/);
         if (!symbolic) {
             const msg = `chmod: invalid mode: ${mode}`;
-            
+
             return { error: msg };
         }
 
@@ -532,7 +542,7 @@ function _chmod(args: string, sudo = false): CommandResult {
     target.permissions = perms;
     syncFilesystem();
     const msg = `Changed permissions of ${path} to ${JSON.stringify(perms)}`;
-    
+
     return { output: msg };
 }
 
@@ -551,7 +561,7 @@ function _head(args: string): CommandResult {
 
     if (!path) {
         const msg = "head: missing operand";
-        
+
         return { error: msg };
     }
 
@@ -561,12 +571,12 @@ function _head(args: string): CommandResult {
 
     if (!file) {
         const msg = `head: no such file: ${path}`;
-        
+
         return { error: msg };
     }
 
     const msg = file.content.split("\n").slice(0, n).join("\n");
-    
+
     return { output: msg };
 }
 
@@ -583,7 +593,7 @@ function _tail(args: string): CommandResult {
 
     if (!path) {
         const msg = "tail: missing operand";
-        
+
         return { error: msg };
     }
 
@@ -592,12 +602,12 @@ function _tail(args: string): CommandResult {
 
     if (!file) {
         const msg = `tail: no such file: ${path}`;
-        
+
         return { error: msg };
     }
 
     const msg = file.content.split("\n").slice(-n).join("\n");
-    
+
     return { output: msg };
 }
 
@@ -706,7 +716,7 @@ function _theme(theme: string): CommandResult {
         const finalTheme = theme.replace(/ /g, "-");
         changeTheme(finalTheme);
         const msg = `theme: updated theme to ${theme} mode`;
-        
+
         return { output: msg };
     };
     if (theme === "help" || theme === "") {
@@ -714,10 +724,10 @@ function _theme(theme: string): CommandResult {
         const columnsPerRow = 4;
         const columnWidth = 30;
         const lines = [];
-        
+
         lines.push("Available Themes:");
         lines.push("=".repeat(columnsPerRow * columnWidth));
-        
+
         for (let i = 0; i < themes.length; i += columnsPerRow) {
             const row = themes
                 .slice(i, i + columnsPerRow)
@@ -725,17 +735,17 @@ function _theme(theme: string): CommandResult {
                 .join("");
             lines.push(row);
         }
-        
+
         lines.push("=".repeat(columnsPerRow * columnWidth));
         lines.push(`Total: ${themes.length} themes`);
         lines.push("Usage: theme <theme-name>");
-        
+
         const output = lines.join("\n");
-        
+
         return { output };
     }
     const msg = "theme: option not found";
-    
+
     return { error: msg };
 }
 
@@ -747,6 +757,46 @@ function _judge(): CommandResult {
 
     return output;
 };
+
+function _version(): CommandResult {
+    const output = {
+        output: `The Current Kernal is Version 0.3.1`,
+    }
+
+    return output;
+}
+
+function _tutorial(): CommandResult {
+    const msg = `Welcome to web terminal! 
+    
+I am so glad you are here!
+                
+Who am I? I am Pharaoh Tutankhamun! 
+                
+But today I am just guided you through your terminal!
+                
+Run "tut [your query]" to ask me ANYTHING (about the terminal of course!)
+                
+Have fun!`;
+
+    return {
+        output: msg,
+    }
+}
+
+async function _tut(arg: string): Promise<CommandResult> {
+  const systemPrompt = `You are a kind and helpful Unix expert named Pharaoh Tutankhamun you go by Tut.
+  Keep your responces VERY SHORT and keep formating simple.
+   You have access to the following terminal commands available in this web terminal:
+
+${Object.entries(commandDescriptions).map(([cmd, desc]) => `  - ${cmd}: ${desc}`).join('\n')}
+
+Be friendly, encouraging, and provide clear explanations. Help users learn Unix concepts and how to use these commands effectively.`;
+
+  return {
+    output: await callAI(arg, systemPrompt),
+  };
+}
 
 export const commandDescriptions: Record<string, string> = {
     hello: "Prints Hello World!",
@@ -778,7 +828,10 @@ export const commandDescriptions: Record<string, string> = {
     head: "Print the first lines of a file :)",
     tail: "Print the last lines of a file ;)",
     theme: "Change the theme of the terminal",
-    judge: "Open a judgment panel for the project!"
+    judge: "Open a judgment panel for the project!",
+    version: "Print current web terminal version",
+    tutorial: "Meet the tutorial!",
+    tut: "Talk to a unix specialist",
 };
 
 export type Command = (arg?: string, sudo?: boolean) => CommandResult;
@@ -796,7 +849,7 @@ export const commands: Partial<Record<string, Command>> = {
     rm: (arg = "", sudo = false) => _rm(arg, sudo),
     cat: (arg = "") => _cat(arg),
     ls: (arg = "") => _ls(arg),
-    clear: () => _clear(),
+    clear: (arg = "") => _clear(arg),
     mv: (arg = "") => {
         const [origin = "", target = ""] = arg.split(" ");
         return _mv(origin, target);
@@ -833,6 +886,9 @@ export const commands: Partial<Record<string, Command>> = {
     tail: (arg = "") => _tail(arg),
     theme: (arg = "") => _theme(arg),
     judge: () => _judge(),
+    version: () => _version(),
+    tutorial: () => _tutorial(),
+    tut: (arg = "") => _tut(arg),
 };
 
 // Initialize VIA system with command registries

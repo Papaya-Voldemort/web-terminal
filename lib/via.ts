@@ -1,6 +1,6 @@
 // via.ts (beta) made with help from Claude Haiku 4.5
 
-import { print } from "./dom";
+import { print } from "./dom.ts";
 import {
     getFile,
     getDirectory,
@@ -11,9 +11,9 @@ import {
     checkPermission,
     makeFunction,
     addFunction,
-} from "./filesystem";
-import { currentDir, isSignedIn, USER } from "./state";
-import { databases, DB_ID, MKT_ID, Query } from "./appwrite";
+} from "./filesystem.ts";
+import { currentDir, isSignedIn, USER } from "./state.ts";
+import { databases, DB_ID, MKT_ID, Query } from "./appwrite.ts";
 
 // These will be initialized by commands.ts
 let commandsRegistry: Record<string, any> = {};

@@ -11,6 +11,9 @@ Most comments and some helper functions were written by an AI tool. No autocompl
 Anything made by AI other than comments is documented in the codebase.
 In the middle of this project I ended up disabling all of the AI features and most is no **Human Written**!
 
+## How it works:
+Pretty much all of this is front end with your files being stored in indexDB on your browser. If you choose to log in your files will be stored in the cloud on an appwrite database.
+
 ## Commands
 
 - `hello` — Prints `Hello World!`

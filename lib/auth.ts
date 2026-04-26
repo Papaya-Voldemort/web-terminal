@@ -1,6 +1,6 @@
-import { account } from "./appwrite";
+import { account } from "./appwrite.ts";
 import { OAuthProvider } from "appwrite";
-import { print } from "./dom";
+import { print } from "./dom.ts";
 
 export async function loginWithGoogle() {
   const user = await account.get().catch(() => null);

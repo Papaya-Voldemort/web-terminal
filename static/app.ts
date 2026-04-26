@@ -1,6 +1,6 @@
-import { commands, loadPersistedCommands } from "./lib/commands";
-import { print, updatePrompt, input } from "./lib/dom";
-import { loadFilesystem } from "./lib/filesystem";
+import { commands, loadPersistedCommands } from "../lib/commands.ts";
+import { print, updatePrompt, input } from "../lib/dom.ts";
+import { loadFilesystem } from "../lib/filesystem.ts";
 import {
   HOST,
   USER,
@@ -13,8 +13,8 @@ import {
   setUser,
   setUserEmail,
   setCurrentUser,
-} from "./lib/state";
-import { execute } from "./lib/kernal"; 
+} from "../lib/state.ts";
+import { execute } from "../lib/kernal.ts"; 
 
 updatePrompt(USER, HOST, currentDir);
 
@@ -50,7 +50,8 @@ document.addEventListener("click", () => {
   if (document.getElementById("writeEditor")) return;
   input.focus();
   const range = document.createRange();
-  const sel = window.getSelection()!;
+  const sel = window.getSelection();
+   if (!sel) return;
   range.selectNodeContents(input);
   range.collapse(false);
   sel.removeAllRanges();
