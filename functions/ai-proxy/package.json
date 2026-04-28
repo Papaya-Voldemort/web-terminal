@@ -1,5 +1,9 @@
 {
   "name": "ai-proxy",
+  "version": "1.0.0",
+  "description": "Appwrite function that proxies requests to Open Router AI API",
   "type": "module",
-  "main": "index.ts"
+  "main": "index.ts",
+  "author": "Web Terminal",
+  "license": "MIT"
 }
