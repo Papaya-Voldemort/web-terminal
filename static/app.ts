@@ -18,6 +18,8 @@ import { execute } from "../lib/kernal.ts";
 
 updatePrompt(USER, HOST, currentDir);
 
+let isExecuting = false;
+
 input.addEventListener("keydown", (e) => {
   if (e.key === "ArrowUp") {
     e.preventDefault();
@@ -34,7 +36,7 @@ input.addEventListener("keydown", (e) => {
   e.preventDefault();
 
   const value = input.innerText.trim();
-  if (!value) return;
+  if (!value || isExecuting) return;
 
   pushHistory(value);
   resetHistoryIndex();
@@ -42,7 +44,17 @@ input.addEventListener("keydown", (e) => {
   // Print the command prompt with the command before executing
   print(`${USER}@${HOST} ${currentDir} $ ${value}`);
 
-  execute(value, print);
+  isExecuting = true;
+  input.style.opacity = "0.5";
+  input.style.pointerEvents = "none";
+
+  execute(value, (output) => {
+    print(output);
+    isExecuting = false;
+    input.style.opacity = "1";
+    input.style.pointerEvents = "auto";
+    input.focus();
+  });
   input.innerText = "";
 });
 

@@ -10,13 +10,20 @@ export async function callAI(input: string, system?: string): Promise<string> {
       false
     );
     
-    let body = response.responseBody || response.response || "";
-    if (!body) {
-      return "No response from function";
+    // Appwrite returns the output in the 'response' field as a string
+    let output = response.response || response.responseBody || "";
+    
+    if (!output) {
+      return "Function executed but returned no data";
     }
     
-    const result = typeof body === "string" ? JSON.parse(body) : body;
-    return result.output || JSON.stringify(result);
+    // Parse if it's JSON, otherwise return as-is
+    try {
+      const parsed = JSON.parse(output);
+      return parsed.output || JSON.stringify(parsed);
+    } catch {
+      return output;
+    }
   } catch (error) {
     return `Error calling AI function: ${String(error)}`;
   }
