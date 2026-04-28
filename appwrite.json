@@ -1,0 +1,19 @@
+{
+  "projectId": "69d14c3800114d434cab",
+  "projectName": "web-terminal",
+  "functions": [
+    {
+      "name": "ai-proxy",
+      "path": "functions/ai-proxy",
+      "entrypoint": "index.ts",
+      "runtime": "node-21.0",
+      "execute": ["any"],
+      "env": [
+        {
+          "name": "OPENROUTER_KEY",
+          "value": "${{ env.OPENROUTER_KEY }}"
+        }
+      ]
+    }
+  ]
+}
