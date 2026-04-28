@@ -5,7 +5,7 @@ export async function callAI(input: string, system?: string): Promise<string> {
   try {
     const functions = new Functions(client);
     const response = await functions.createExecution(
-      "ai-proxy",
+      "69f13b9e000b205ab9f9",
       JSON.stringify({ input, system }),
       false
     );
