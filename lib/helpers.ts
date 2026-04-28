@@ -9,8 +9,14 @@ export async function callAI(input: string, system?: string): Promise<string> {
       JSON.stringify({ input, system }),
       false
     );
-    const result = JSON.parse(response.responseBody);
-    return result.output;
+    
+    let body = response.responseBody || response.response || "";
+    if (!body) {
+      return "No response from function";
+    }
+    
+    const result = typeof body === "string" ? JSON.parse(body) : body;
+    return result.output || JSON.stringify(result);
   } catch (error) {
     return `Error calling AI function: ${String(error)}`;
   }
