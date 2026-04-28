@@ -832,7 +832,8 @@ export const commandDescriptions: Record<string, string> = {
     version: "Print current web terminal version",
     tutorial: "Meet the tutorial!",
     tut: "Talk to a unix specialist",
-};
+    "set-key": "Set OpenRouter API key for AI commands (tut)",
+    };
 
 export type Command = (arg?: string, sudo?: boolean) => CommandResult;
 
@@ -889,7 +890,12 @@ export const commands: Partial<Record<string, Command>> = {
     version: () => _version(),
     tutorial: () => _tutorial(),
     tut: (arg = "") => _tut(arg),
-};
+    "set-key": (arg = "") => {
+      if (!arg.trim()) return { error: "Usage: set-key <sk-or-yourkey>" };
+      localStorage.setItem("openrouter_key", arg.trim());
+      return { output: "✅ OpenRouter key set! Tut now works (per browser)." };
+    },
+    };
 
 // Initialize VIA system with command registries
 initializeViaSystem(commands, commandDescriptions);

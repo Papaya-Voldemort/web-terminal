@@ -1,0 +1,5 @@
+{
+  "name": "ai-proxy",
+  "type": "module",
+  "main": "index.ts"
+}
