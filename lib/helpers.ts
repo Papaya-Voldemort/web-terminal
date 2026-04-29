@@ -9,21 +9,55 @@ export async function callAI(input: string, system?: string): Promise<string> {
     const execution = await functions.createExecution(
       "69f13b9e000b205ab9f9",
       JSON.stringify({ input, system }),
-      true  // wait for execution to complete
+      false  // don't wait initially
     );
 
-    console.log("📥 Execution response:", {
+    console.log("📥 Initial execution:", {
+      id: execution.$id,
       status: execution.status,
-      responseBody: execution.responseBody,
-      response: execution.response,
+    });
+
+    // Poll for completion with timeout
+    const maxAttempts = 30;
+    let attempt = 0;
+    let completed = false;
+    let finalExecution = execution;
+
+    while (attempt < maxAttempts && !completed) {
+      if (finalExecution.status === "completed") {
+        completed = true;
+        break;
+      }
+
+      // Wait 500ms before polling again
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      finalExecution = await functions.getExecution(
+        "69f13b9e000b205ab9f9",
+        execution.$id
+      );
+
+      console.log(`⏳ Poll attempt ${attempt + 1}:`, {
+        status: finalExecution.status,
+        responseBodyLength: finalExecution.responseBody?.length || 0,
+      });
+
+      attempt++;
+    }
+
+    console.log("📥 Final execution response:", {
+      status: finalExecution.status,
+      responseBodyLength: finalExecution.responseBody?.length || 0,
+      responseBody: finalExecution.responseBody,
+      response: finalExecution.response,
     });
 
     // Get the response body from the execution
-    const responseBody = execution.responseBody;
+    const responseBody = finalExecution.responseBody;
     
     if (!responseBody) {
-      console.error("❌ No response body. Full execution:", execution);
-      return `No response: ${execution.response || "unknown error"}`;
+      console.error("❌ No response body after polling. Final execution:", finalExecution);
+      return `No response: ${finalExecution.response || "unknown error (status: " + finalExecution.status + ")"}`;
     }
 
     // Try to parse as JSON
